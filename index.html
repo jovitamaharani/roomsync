@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIMORA - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <main class="login-page">
+        <div class="login-card">
+            <section class="brand-panel">
+                <div class="brand-content">
+                    <div class="brand-icon" aria-hidden="true">
+                        <i class="bi bi-buildings"></i>
+                    </div>
+                    <h1>RIMORA</h1>
+                    <p>Pantau ketersediaan ruangan, cek jadwal, dan kelola penggunaan kelas dengan mudah dan cepat.</p>
+                </div>
+                <small class="brand-footer">
+                    Sistem Monitoring Ruang · PBL 2026
+                </small>
+            </section>
+            <section class="form-panel">
+                <form>
+                    <h2>Masuk ke Akun</h2>
+                    <p class="form-description">Silakan masukkan kredensial Anda untuk melanjutkan.</p>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Pengguna</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope" aria-hidden="true"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" placeholder="Masukkan Email"
+                                autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Kata Sandi</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock" aria-hidden="true"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" placeholder="Masukkan Kata Sandi"
+                                autocomplete="current-password" required>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="ingatSaya">
+                            <label class="form-check-label" for="ingatSaya">Ingat saya</label>
+                        </div>
+                        <a href="#" class="forgot-link">Lupa Kata Sandi?</a>
+                    </div>
+                    <button type="submit" class="btn btn-login w-100">Masuk <i class="bi bi-arrow-right-short"
+                            aria-hidden="true"></i></button>
+                </form>
+            </section>
+        </div>
+    </main>
+</body>
+
+</html>
