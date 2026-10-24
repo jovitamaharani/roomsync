@@ -4,12 +4,12 @@ require_once __DIR__ . '/Database.php';
 
 class Router {
     public function run() {
-        $controllerParam = $_GET['controller'] ?? 'home';
+        $controllerParam = preg_replace('/[^a-z_]/i', '', $_GET['controller'] ?? 'home');        
         $action = $_GET['action'] ?? 'index';
         $id = $_GET['id'] ?? null;
 
         $controllerName = ucfirst($controllerParam) . "Controller";
-        
+        $controllerName  = str_replace(' ', '', ucwords(str_replace('_', ' ', $controllerParam))) . "Controller";
         // Gunakan path absolut dari ROOT project agar tidak kena error path lokasi
         $controllerFile = __DIR__ . "/../app/Controllers/" . $controllerName . ".php";
 
