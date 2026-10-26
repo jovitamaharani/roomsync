@@ -1,5 +1,5 @@
 <?php
-class Database {
+    class Database{
     private $host = "aws-0-ap-southeast-1.pooler.supabase.com";
     private $port = "5432";
     private $db   = "postgres";
@@ -7,20 +7,16 @@ class Database {
     private $pass = "polinemajosjis";
     public $conn;
 
-    public function getConnection() {
-        $this->conn = null;
-
-        try {
-            $this->conn = new PDO(
-                "pgsql:host={$this->host};port={$this->port};dbname={$this->db}", 
-                $this->user, 
-                $this->pass
-            );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Koneksi database gagal: " . $e->getMessage());
+        public function getConnection(){
+            $this->conn = null;
+            try{
+                $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            }    
+            catch(PDOException $exception){
+                echo "Koneksi gagal...". $exception->getMessage();
+            }
+            return $this->conn;
         }
-
-        return $this->conn;
     }
-}
+?>
