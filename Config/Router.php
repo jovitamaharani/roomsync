@@ -1,6 +1,7 @@
 <?php
 // Load file Database otomatis di sini agar bisa digunakan oleh SEMUA Controller
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/Auth.php';
 
 class Router {
     public function run() {
@@ -8,7 +9,6 @@ class Router {
         $action = $_GET['action'] ?? 'index';
         $id = $_GET['id'] ?? null;
 
-        $controllerName = ucfirst($controllerParam) . "Controller";
         $controllerName  = str_replace(' ', '', ucwords(str_replace('_', ' ', $controllerParam))) . "Controller";
         // Gunakan path absolut dari ROOT project agar tidak kena error path lokasi
         $controllerFile = __DIR__ . "/../app/Controllers/" . $controllerName . ".php";

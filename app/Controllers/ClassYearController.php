@@ -8,6 +8,7 @@ class ClassYearController
 
     public function __construct()
     {
+        Auth::requireRole(['Admin']);
         $database = new Database();
         $db = $database->getConnection();
         $this->classYearModel = new ClassYear($db);
