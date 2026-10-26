@@ -1,10 +1,11 @@
 <?php
     class Database{
-        private $host = "";
-        private $db_name = "";
-        private $username = "posgres";
-        private $password = "polinemajosjis";
-        public $conn;
+    private $host = "aws-0-ap-southeast-1.pooler.supabase.com";
+    private $port = "5432";
+    private $db   = "postgres";
+    private $user = "postgres.fgliuztmcniiftqprnck";
+    private $pass = "polinemajosjis";
+    public $conn;
 
         public function getConnection(){
             $this->conn = null;

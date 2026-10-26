@@ -8,8 +8,8 @@ include_once("../../config/database.php");
 include_once("../../controllers/classController.php");
 
 $database = new Database();
-$db = $database->getConnection();
-$classController = new ClassController($db);
+$controllerClass = 'ClassController';
+$classController = new $controllerClass($db);
 $stmt = $classController->read();
 
 $num = $stmt->rowCount();
