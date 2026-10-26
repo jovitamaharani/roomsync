@@ -31,7 +31,7 @@
             <?php if (!empty($classYears)): ?>
                 <?php foreach ($classYears as $item): ?>
                     <tr>
-                        <td><?= htmlspecialchars($item['academic_year']); ?></td>
+                        <td><?= htmlspecialchars($item['name']); ?></td>
                         <td><?= $item['is_active'] ? 'Aktif' : 'Nonaktif'; ?></td>
                         <td>
                             <a href="index.php?controller=class_year&action=edit&id=<?= urlencode($item['id']); ?>">Edit</a> |

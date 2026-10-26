@@ -1,5 +1,5 @@
 <?php
-require_once "Config/Database.php";
+require_once "config/database.php";
 require_once "app/Models/ClassYear.php";
 
 class ClassYearController
@@ -37,12 +37,12 @@ class ClassYearController
     public function index()
     {
         $classYears = $this->classYearModel->getAll();
-        require_once "app/Views/class_year/index.php";
+        require_once "app/Views/user/class_year/index.php";
     }
 
     public function create()
     {
-        require_once "app/Views/class_year/create.php";
+        require_once "app/Views/user/class_year/create.php";
     }
 
     public function store()
@@ -68,7 +68,7 @@ class ClassYearController
         if (!$classYear) {
             $this->redirect('error', 'Data tidak ditemukan.');
         }
-        require_once "app/Views/class_year/edit.php";
+        require_once "app/Views/user/class_year/edit.php";
     }
 
     public function update()

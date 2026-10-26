@@ -9,7 +9,7 @@
 <body>
     <h2>Edit Tahun Ajaran</h2>
     <form action="index.php?controller=class_year&action=update" method="POST">
-        <input type="hidden" name="id" value="<?= htmlspecialchars($classYear['id']); ?>">
+        <input type="hidden" name="id" value="<?= htmlspecialchars($classYear['name']); ?>">
 
         <label>Tahun Ajaran:</label><br>
         <input type="text" name="academic_year" maxlength="9"

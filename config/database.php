@@ -10,10 +10,11 @@
         public function getConnection(){
             $this->conn = null;
             try{
-                $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+                $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->db, $this->user, $this->pass);
                 $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             }    
             catch(PDOException $exception){
+                http_response_code(500);
                 echo "Koneksi gagal...". $exception->getMessage();
             }
             return $this->conn;
