@@ -2,8 +2,8 @@
     class Database{
         private $host = "";
         private $db_name = "";
-        private $username = "";
-        private $password = "";
+        private $username = "posgres";
+        private $password = "polinemajosjis";
         public $conn;
 
         public function getConnection(){
