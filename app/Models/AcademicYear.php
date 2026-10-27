@@ -1,8 +1,8 @@
 <?php
-class ClassYear
+class AcademicYear
 {
     private $conn;
-    private $table = "class_years";
+    private $table = "academic_years";
 
     public function __construct($db)
     {
@@ -11,7 +11,7 @@ class ClassYear
 
     public function getAll()
     {
-        $query = "SELECT * FROM " . $this->table . " ORDER BY academic_year DESC";
+        $query = "SELECT * FROM " . $this->table . " ORDER BY name DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -26,26 +26,26 @@ class ClassYear
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create($academicYear, $isActive)
+    public function create($name, $isActive)
     {
         $query = "INSERT INTO " . $this->table . "
-            (academic_year, is_active)
-            VALUES (:academic_year, :is_active)";
+            (name, is_active)
+            VALUES (:name, :is_active)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":academic_year", $academicYear);
+        $stmt->bindParam(":name", $name);
         $stmt->bindValue(":is_active", $isActive ? 'true' : 'false');
         return $stmt->execute();
     }
 
-    public function update($id, $academicYear, $isActive)
+    public function update($id, $name, $isActive)
     {
         $query = "UPDATE " . $this->table . "
-                SET academic_year = :academic_year,
+                SET name = :name,
                     is_active = :is_active
                 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":id", $id);
-        $stmt->bindParam(":academic_year", $academicYear);
+        $stmt->bindParam(":name", $name);
         $stmt->bindValue(":is_active", $isActive ? 'true' : 'false');
         return $stmt->execute();
     }
