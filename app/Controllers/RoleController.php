@@ -1,5 +1,5 @@
 <?php
-require_once "Config/Database.php";
+require_once "config/Database.php";
 require_once "app/Models/Role.php";
 
 class RoleController
@@ -14,15 +14,24 @@ class RoleController
         $this->roleModel = new Role($db);
     }
 
+        private function redirect($type = null, $message = null)
+    {
+        if ($type && $message) {
+            $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+        }
+        header("Location: index.php?controller=role&action=index");
+        exit;
+    }
+
     public function index()
     {
         $roles = $this->roleModel->getAll();
-        require_once "app/Views/role/index.php";
+        require_once "app/Views/user/role/index.php";
     }
 
     public function create()
     {
-        require_once "app/Views/role/create.php";
+        require_once "app/Views/user/role/create.php";
     }
 
     public function store()
@@ -33,14 +42,17 @@ class RoleController
                 $this->roleModel->create($name);
             }
             header("Location: index.php?controller=role&action=index");
-            exit;
+            $this->redirect('success', 'Berhasil Ditambahkan');
         }
     }
 
     public function edit($id)
     {
         $role = $this->roleModel->getById($id);
-        require_once "app/Views/role/edit.php";
+        if (!$role) {
+        $this->redirect('error', 'Data tidak ditemukan');
+            }
+        require_once "app/Views/user/role/edit.php";
     }
 
     public function update()
@@ -48,6 +60,10 @@ class RoleController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'];
             $name = trim($_POST['name']);
+            // debug
+            // var_dump($_POST);
+            // var_dump($name);
+            // exit;
             if (!empty($id) && !empty($name)) {
                 $this->roleModel->update($id, $name);
             }

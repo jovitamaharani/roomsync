@@ -13,6 +13,12 @@
 
 <body>
     <h1>landing page</h1>
+
+    <nav>
+        <a href="index.php?controller=role&action=index">Role</a> |
+        <a href="index.php?controller=class_year&action=index">Tahun Ajaran</a>
+    </nav>
+
     <?php if (!empty($_SESSION['flash'])): ?>
         <?php $flash = $_SESSION['flash'];
         unset($_SESSION['flash']); ?>

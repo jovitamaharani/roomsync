@@ -43,7 +43,8 @@ class Role {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":id", $id);
         $stmt->bindParam(":name", $name);
-        return $stmt->execute();
+        $stmt->execute();
+        return $stmt->rowCount()>0;
     }
 
     public function delete($id) {
