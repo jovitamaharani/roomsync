@@ -8,14 +8,14 @@
 
 <body>
     <h2>Tambah Tahun Ajaran</h2>
-    <form action="index.php?controller=class_year&action=store" method="POST">
+    <form action="index.php?controller=academic_year&action=store" method="POST">
         <label>Tahun Ajaran:</label><br>
-        <input type="text" name="academic_year" placeholder="2025/2026" maxlength="9" required><br><br>
+        <input type="text" name="name" placeholder="2025/2026" maxlength="9" required><br><br>
 
         <label><input type="checkbox" name="is_active" checked> Aktif</label><br><br>
 
         <button type="submit">Simpan</button>
-        <a href="index.php?controller=class_year&action=index">Batal</a>
+        <a href="index.php?controller=academic_year&action=index">Batal</a>
     </form>
 </body>
 
