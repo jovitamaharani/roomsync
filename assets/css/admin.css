@@ -1,0 +1,1097 @@
+/* =========================================
+   1. FONT DAN VARIABEL
+========================================= */
+
+:root {
+    --navy: #102b5c;
+    --navy-dark: #0b2047;
+    --blue: #315fcb;
+    --blue-light: #eaf0ff;
+    --ink: #17243b;
+    --muted: #718096;
+    --canvas: #f4f7fc;
+    --line: #e4e9f2;
+    --sidebar: #102b5c;
+    --white: #ffffff;
+    --green: #16845b;
+    --red: #dc4545;
+    --radius: 18px;
+    --shadow: 0 8px 28px rgba(19, 43, 82, 0.05);
+}
+
+/* =========================================
+   2. RESET DASAR
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: var(--ink);
+    background: var(--canvas);
+    font-size: 14px;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* =========================================
+   3. LAYOUT UTAMA
+========================================= */
+
+.admin-shell {
+    min-height: 100vh;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1030;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 280px;
+    height: 100vh;
+    padding: 24px 20px 16px;
+
+    color: var(--white);
+    background: linear-gradient(180deg,
+            #122f65 0%,
+            #0c2148 100%);
+
+    overflow: hidden;
+    transition: transform 0.25s ease;
+}
+
+.main-area {
+    min-width: 0;
+    min-height: 100vh;
+    margin-left: 280px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    min-width: 0;
+    padding: 36px 40px 42px;
+}
+
+.admin-page {
+    display: none;
+    min-width: 0;
+}
+
+.admin-page.active {
+    display: block;
+}
+
+/* =========================================
+   4. BRAND SIDEBAR
+========================================= */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    flex-shrink: 0;
+    padding: 8px 10px 24px;
+
+    color: white;
+}
+
+.brand:hover {
+    color: white;
+}
+
+.brand-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 17px;
+
+    color: white;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 25px;
+}
+
+.brand>span:last-child {
+    min-width: 0;
+}
+
+.brand b {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.3;
+}
+
+.brand small {
+    display: block;
+    margin-top: 2px;
+    color: #d3def5;
+    font-size: 13px;
+}
+
+/* =========================================
+   5. LABEL MENU
+========================================= */
+
+.sidebar-label {
+    flex-shrink: 0;
+    margin: 10px 12px 8px;
+
+    color: #aebfe0;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   6. NAVIGASI SIDEBAR
+========================================= */
+
+.side-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+
+    flex: 1;
+    min-height: 0;
+    margin: 0 0 12px;
+    padding: 0 3px 0 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+/* Scrollbar Chrome dan Edge */
+
+.side-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.side-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.side-nav::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: transparent;
+}
+
+.side-nav:hover {
+    scrollbar-color: rgba(190, 207, 240, 0.55) transparent;
+}
+
+.side-nav:hover::-webkit-scrollbar-thumb {
+    background: rgba(190, 207, 240, 0.55);
+}
+
+.side-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 231, 255, 0.85);
+}
+
+/* Tombol menu */
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    width: 100%;
+    min-height: 54px;
+    flex-shrink: 0;
+    padding: 12px 14px;
+
+    border: 0;
+    border-radius: 13px;
+
+    color: #edf3ff;
+    background: transparent;
+
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: left;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.side-link i {
+    width: 24px;
+    flex-shrink: 0;
+
+    font-size: 21px;
+    text-align: center;
+}
+
+.side-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.side-link.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.13);
+    box-shadow: inset 4px 0 0 #8bb0ff;
+}
+
+.side-link:focus-visible {
+    outline: 2px solid #b7d0ff;
+    outline-offset: 2px;
+}
+
+/* =========================================
+   7. BAGIAN BAWAH SIDEBAR
+========================================= */
+
+.sidebar-bottom {
+    flex-shrink: 0;
+    padding-top: 12px;
+    background: transparent;
+}
+
+.admin-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+    padding: 12px 7px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    color: var(--navy);
+    background: #dce7ff;
+
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.admin-identity>span:last-child {
+    min-width: 0;
+}
+
+.admin-identity b {
+    display: block;
+    overflow-wrap: anywhere;
+
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-identity small {
+    display: block;
+    margin-top: 3px;
+
+    color: #bdcceb;
+    font-size: 12px;
+}
+
+/* Tombol logout */
+
+#logoutBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    width: 100%;
+    min-height: 42px;
+
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#logoutBtn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* =========================================
+   8. TOPBAR
+========================================= */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    min-height: 112px;
+    padding: 24px 40px;
+
+    border-bottom: 1px solid var(--line);
+    background: white;
+}
+
+.topbar>div {
+    min-width: 0;
+}
+
+.topbar>div>small {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 13px;
+}
+
+#pageTitle {
+    margin: 0;
+
+    color: #101c32;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+}
+
+.today-label {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.today-label i {
+    color: #64748b;
+}
+
+#sidebarToggle {
+    flex-shrink: 0;
+}
+
+/* =========================================
+   9. AREA KONTEN DASHBOARD
+========================================= */
+
+.page-content>.admin-page {
+    width: 100%;
+}
+
+.welcome-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+
+    min-height: 255px;
+    margin-bottom: 28px;
+    padding: 42px 46px;
+
+    overflow: hidden;
+    border-radius: 25px;
+
+    color: white;
+    background: linear-gradient(115deg,
+            #142f65 0%,
+            #315baa 100%);
+}
+
+.welcome-panel>div:first-child {
+    min-width: 0;
+    flex: 1;
+}
+
+.welcome-kicker {
+    display: block;
+    margin-bottom: 12px;
+
+    color: #cbdcff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.welcome-panel h2 {
+    max-width: 700px;
+    margin: 0 0 12px;
+
+    color: white;
+    font-size: clamp(25px, 2.3vw, 35px);
+    font-weight: 600;
+    letter-spacing: -1.1px;
+    line-height: 1.35;
+}
+
+.welcome-panel p {
+    max-width: 760px;
+    margin: 0;
+
+    color: #e2ebff;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.welcome-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 150px;
+    flex-shrink: 0;
+
+    color: rgba(255, 255, 255, 0.16);
+    font-size: 110px;
+}
+
+/* =========================================
+   10. KARTU RINGKASAN
+========================================= */
+
+#summaryCards {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    height: 100%;
+    min-height: 106px;
+    padding: 23px;
+
+    border: 1px solid var(--line);
+    border-radius: 20px;
+
+    background: white;
+    box-shadow: var(--shadow);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(19, 43, 82, 0.08);
+}
+
+.summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+
+    border-radius: 16px;
+    color: var(--blue);
+    background: var(--blue-light);
+
+    font-size: 24px;
+}
+
+.summary-label {
+    display: block;
+    margin-bottom: 4px;
+
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.summary-number {
+    color: #12213b;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* =========================================
+   11. KARTU KONTEN DAN JADWAL
+========================================= */
+
+.content-card {
+    min-width: 0;
+    margin-bottom: 24px;
+    padding: 26px 28px;
+
+    border: 1px solid var(--line);
+    border-radius: 20px;
+
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+.today-schedule-card {
+    width: 100%;
+}
+
+.card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+.card-heading>div:first-child {
+    min-width: 0;
+}
+
+.card-heading h3 {
+    margin: 0;
+
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.card-heading p {
+    margin: 5px 0 0;
+
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================================
+   12. TABEL
+========================================= */
+
+.table-responsive {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table {
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.table thead th {
+    padding: 13px 12px;
+
+    border-bottom: 1px solid #dfe6f0;
+    color: #64748b;
+    background: #f7f9fd;
+
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 14px 12px;
+
+    border-bottom: 1px solid #e8edf5;
+    color: #17243b;
+
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table tbody tr:hover td {
+    background-color: #f8faff;
+}
+
+/* =========================================
+   13. DATATABLES
+========================================= */
+
+.dt-container {
+    width: 100%;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.dt-container .dt-layout-row {
+    gap: 12px;
+    margin: 12px 0;
+}
+
+.dt-container .dt-search input,
+.dt-container .dt-length select {
+    min-height: 36px;
+    padding: 6px 10px;
+
+    border: 1px solid #dce3ee;
+    border-radius: 8px;
+
+    color: var(--ink);
+    background: white;
+    outline: none;
+}
+
+.dt-container .dt-search input:focus,
+.dt-container .dt-length select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.1);
+}
+
+.dt-container .dt-paging .dt-paging-button {
+    margin: 0 2px;
+    padding: 6px 11px;
+
+    border: 1px solid transparent;
+    border-radius: 7px;
+
+    color: var(--ink) !important;
+    background: transparent;
+}
+
+.dt-container .dt-paging .dt-paging-button.current {
+    border-color: #dce6ff;
+    color: var(--blue) !important;
+    background: var(--blue-light);
+}
+
+.dt-container .dt-paging .dt-paging-button:hover {
+    border-color: var(--line);
+    color: var(--navy) !important;
+    background: #f5f7fc;
+}
+
+/* =========================================
+   14. STATUS BADGE
+========================================= */
+
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+    border-radius: 50px;
+
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.badge-green {
+    color: #11734d;
+    background: #e0f6eb;
+}
+
+.badge-red {
+    color: #b52f39;
+    background: #ffeaec;
+}
+
+.badge-blue {
+    color: #2853c7;
+    background: #eaf0ff;
+}
+
+/* =========================================
+   15. BUTTON
+========================================= */
+
+.btn {
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    border-color: var(--blue);
+    background: var(--blue);
+}
+
+.btn-primary:hover {
+    border-color: #244cae;
+    background: #244cae;
+}
+
+.btn-outline-primary {
+    border-color: #b7c9f8;
+    color: var(--blue);
+}
+
+.btn-outline-primary:hover {
+    border-color: var(--blue);
+    color: white;
+    background: var(--blue);
+}
+
+.btn-light {
+    border-color: var(--line);
+    color: var(--ink);
+    background: white;
+}
+
+.btn-light:hover {
+    background: #f3f6fb;
+}
+
+/* =========================================
+   16. MODAL DAN FORM
+========================================= */
+
+.modal-content {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 20px 70px rgba(12, 32, 71, 0.18);
+}
+
+.modal-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.modal-title {
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--line);
+}
+
+.form-label {
+    margin-bottom: 7px;
+    color: #34425b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-control,
+.form-select {
+    min-height: 42px;
+    border: 1px solid #dce3ee;
+    border-radius: 9px;
+
+    color: var(--ink);
+    background-color: white;
+    font-size: 13px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.1);
+}
+
+/* =========================================
+   17. TOAST
+========================================= */
+
+#toastArea {
+    z-index: 1090;
+}
+
+#toastArea .toast {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(12, 32, 71, 0.15);
+}
+
+/* =========================================
+   18. FOOTER
+========================================= */
+
+.admin-footer {
+    margin-top: auto;
+    padding: 22px 40px;
+
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    background: white;
+
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* =========================================
+   19. BACKDROP MOBILE
+========================================= */
+
+.sidebar-scrim {
+    display: none;
+}
+
+/* =========================================
+   20. RESPONSIVE TABLET
+========================================= */
+
+@media (max-width: 1199.98px) {
+    .sidebar {
+        width: 260px;
+    }
+
+    .main-area {
+        margin-left: 260px;
+    }
+
+    .topbar {
+        padding: 22px 28px;
+    }
+
+    .page-content {
+        padding: 28px;
+    }
+
+    .welcome-panel {
+        padding: 34px;
+    }
+
+    .summary-card {
+        padding: 18px;
+    }
+
+    .admin-footer {
+        padding: 20px 28px;
+    }
+}
+
+/* =========================================
+   21. RESPONSIVE MOBILE
+========================================= */
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 280px;
+        max-width: calc(100vw - 48px);
+
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 15px 0 45px rgba(0, 0, 0, 0.18);
+    }
+
+    .main-area {
+        margin-left: 0;
+    }
+
+    #sidebarToggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-scrim.show {
+        position: fixed;
+        inset: 0;
+        z-index: 1020;
+
+        display: block;
+        background: rgba(8, 21, 43, 0.5);
+        backdrop-filter: blur(2px);
+    }
+
+    .topbar {
+        min-height: 88px;
+        padding: 18px 24px;
+    }
+
+    .page-content {
+        padding: 24px;
+    }
+
+    .welcome-panel {
+        min-height: 220px;
+    }
+
+    .admin-footer {
+        padding: 20px 24px;
+    }
+}
+
+/* =========================================
+   22. RESPONSIVE HP
+========================================= */
+
+@media (max-width: 575.98px) {
+    body {
+        font-size: 13px;
+    }
+
+    .topbar {
+        gap: 12px;
+        padding: 16px;
+    }
+
+    #pageTitle {
+        font-size: 21px;
+    }
+
+    .today-label {
+        max-width: 125px;
+        font-size: 11px;
+        white-space: normal;
+        line-height: 1.5;
+    }
+
+    .page-content {
+        padding: 16px;
+    }
+
+    .welcome-panel {
+        min-height: auto;
+        margin-bottom: 18px;
+        padding: 27px 23px;
+        border-radius: 18px;
+    }
+
+    .welcome-panel h2 {
+        font-size: 25px;
+    }
+
+    .welcome-panel p {
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .welcome-art {
+        width: auto;
+        font-size: 55px;
+    }
+
+    .summary-card {
+        min-height: 88px;
+        gap: 11px;
+        padding: 13px;
+        border-radius: 15px;
+    }
+
+    .summary-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        font-size: 19px;
+    }
+
+    .summary-label {
+        font-size: 11px;
+    }
+
+    .summary-number {
+        font-size: 22px;
+    }
+
+    .content-card {
+        padding: 17px;
+        border-radius: 16px;
+    }
+
+    .card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .card-heading>.d-flex {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 11px 10px;
+    }
+
+    .modal-body {
+        padding: 18px;
+    }
+
+    .admin-footer {
+        padding: 18px 16px;
+    }
+}
+
+/* =========================================
+   23. AKSESIBILITAS
+========================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #7298f2;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

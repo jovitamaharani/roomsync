@@ -1,0 +1,50 @@
+<?php
+$possibleJsPaths = [
+    'admin.js',
+    '../admin.js',
+    '../../admin.js',
+    'admin/admin.js',
+    'assets/js/admin.js',
+    '../assets/js/admin.js',
+    '../../assets/js/admin.js'
+];
+$adminJsSrc = '../admin.js';
+foreach ($possibleJsPaths as $p) {
+    if (file_exists($p)) {
+        $adminJsSrc = $p;
+        break;
+    }
+}
+?>
+            <footer class="admin-footer">
+                <p class="mb-0">
+                    &copy; <?= date('Y') ?> <b>SIKARA</b> &middot; Jurusan Teknologi Informasi Politeknik Negeri Malang.
+                    <span class="d-none d-md-inline">Sistem Informasi Ketersediaan dan Alokasi Ruang.</span>
+                </p>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- MODAL TAMBAH DATA (SIMULASI) -->
+    <?php include __DIR__ . '/modal_data.php'; ?>
+
+    <!-- JAVASCRIPT LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- JAVASCRIPT ADMIN (Dukungan rute maupun akses langsung) -->
+    <script src="<?= $adminJsSrc ?>"></script>
+    <script>
+        // Fallback jika belum termuat
+        if (typeof window.sikaraAdminLoaded === 'undefined') {
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = '../admin.js';
+            document.body.appendChild(fallbackScript);
+        }
+    </script>
+
+</body>
+</html>
