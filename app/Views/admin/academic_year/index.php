@@ -17,7 +17,7 @@
         </p>
     <?php endif; ?>
 
-    <a href="index.php?controller=class_year&action=create">+ Tambah Tahun Ajaran</a>
+    <a href="index.php?controller=academic_year&action=create">+ Tambah Tahun Ajaran</a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -28,14 +28,14 @@
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($classYears)): ?>
-                <?php foreach ($classYears as $item): ?>
+            <?php if (!empty($academicYear)): ?>
+                <?php foreach ($academicYear as $item): ?>
                     <tr>
-                        <td><?= htmlspecialchars($item['academic_year']); ?></td>
+                        <td><?= htmlspecialchars($item['name']); ?></td>
                         <td><?= $item['is_active'] ? 'Aktif' : 'Nonaktif'; ?></td>
                         <td>
-                            <a href="index.php?controller=class_year&action=edit&id=<?= urlencode($item['id']); ?>">Edit</a> |
-                            <a href="index.php?controller=class_year&action=delete&id=<?= urlencode($item['id']); ?>"
+                            <a href="index.php?controller=academic_year&action=edit&id=<?= urlencode($item['id']); ?>">Edit</a> |
+                            <a href="index.php?controller=academic_year&action=delete&id=<?= urlencode($item['id']); ?>"
                                 onclick="return confirm('Hapus data ini?')">Hapus</a>
                         </td>
                     </tr>
