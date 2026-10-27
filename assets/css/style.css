@@ -1,0 +1,743 @@
+/* =========================================
+   1. FONT GLOBAL
+========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* =========================================
+   2. VARIABEL GLOBAL SIKARA
+========================================= */
+
+:root {
+    /* Warna utama */
+    --primary: #315fcb;
+    --primary-dark: #244cae;
+    --primary-light: #eaf0ff;
+
+    /* Warna navigasi */
+    --navy: #102b5c;
+    --navy-dark: #0b2047;
+
+    /* Warna teks */
+    --text-primary: #17243b;
+    --text-secondary: #718096;
+    --text-light: #a0aec0;
+
+    /* Warna latar */
+    --bg-page: #f4f7fc;
+    --bg-white: #ffffff;
+    --bg-soft: #f7f9fd;
+
+    /* Warna status */
+    --success: #16845b;
+    --success-light: #e0f6eb;
+
+    --danger: #dc4545;
+    --danger-light: #ffeaec;
+
+    --warning: #b7791f;
+    --warning-light: #fff4d6;
+
+    /* Border dan bayangan */
+    --border-color: #e4e9f2;
+    --shadow-sm: 0 4px 14px rgba(19, 43, 82, 0.05);
+    --shadow-md: 0 8px 28px rgba(19, 43, 82, 0.08);
+
+    /* Ukuran */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+
+    /* Transisi */
+    --transition: 0.2s ease;
+}
+
+/* =========================================
+   3. RESET DAN PENGATURAN DASAR
+========================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: var(--text-primary);
+    background: var(--bg-page);
+
+    -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video {
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+ul,
+ol {
+    padding-left: 1.4rem;
+}
+
+::selection {
+    color: var(--navy);
+    background: #dce7ff;
+}
+
+/* =========================================
+   4. TIPOGRAFI GLOBAL
+========================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+h1 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+h3 {
+    font-size: 1.25rem;
+}
+
+h4 {
+    font-size: 1.1rem;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.text-muted,
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+/* =========================================
+   5. CONTAINER GLOBAL
+========================================= */
+
+.container-custom {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 24px;
+}
+
+.section {
+    padding-block: 64px;
+}
+
+.section-heading {
+    margin-bottom: 28px;
+}
+
+.section-heading h2 {
+    margin-bottom: 10px;
+}
+
+.section-heading p {
+    max-width: 680px;
+    margin-bottom: 0;
+    color: var(--text-secondary);
+}
+
+/* =========================================
+   6. NAVBAR GLOBAL
+========================================= */
+
+.navbar-custom {
+    position: relative;
+    z-index: 100;
+
+    width: 100%;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-custom .container-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    min-height: 76px;
+}
+
+.navbar-brand-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+
+    color: var(--navy);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.navbar-brand-custom:hover {
+    color: var(--primary);
+}
+
+.navbar-menu-custom {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.navbar-menu-custom a {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.navbar-menu-custom a:hover,
+.navbar-menu-custom a.active {
+    color: var(--primary);
+}
+
+/* =========================================
+   7. BUTTON GLOBAL
+========================================= */
+
+.btn-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 42px;
+    padding: 10px 18px;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+.btn-custom:active {
+    transform: translateY(1px);
+}
+
+.btn-primary-custom {
+    color: white;
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary-custom:hover {
+    color: white;
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-custom {
+    color: var(--primary);
+    background: transparent;
+    border-color: #b7c9f8;
+}
+
+.btn-outline-custom:hover {
+    color: white;
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-light-custom {
+    color: var(--text-primary);
+    background: white;
+    border-color: var(--border-color);
+}
+
+.btn-light-custom:hover {
+    background: var(--bg-soft);
+}
+
+.btn-danger-custom {
+    color: white;
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-danger-custom:hover {
+    color: white;
+    background: #bd3535;
+    border-color: #bd3535;
+}
+
+/* =========================================
+   8. CARD GLOBAL
+========================================= */
+
+.card-custom {
+    min-width: 0;
+    padding: 24px;
+
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+
+    background: var(--bg-white);
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+.card-custom-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-title-custom {
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.card-description-custom {
+    margin-bottom: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* =========================================
+   9. FORM GLOBAL
+========================================= */
+
+.form-group-custom {
+    margin-bottom: 18px;
+}
+
+.form-label-custom {
+    display: block;
+    margin-bottom: 8px;
+
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-control-custom {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 13px;
+
+    border: 1px solid #dce3ee;
+    border-radius: var(--radius-sm);
+
+    color: var(--text-primary);
+    background: white;
+
+    outline: none;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.form-control-custom::placeholder {
+    color: var(--text-light);
+}
+
+.form-control-custom:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.12);
+}
+
+textarea.form-control-custom {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* =========================================
+   10. BADGE STATUS GLOBAL
+========================================= */
+
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    padding: 6px 11px;
+    border-radius: 50px;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.badge-primary-custom {
+    color: #2853c7;
+    background: var(--primary-light);
+}
+
+.badge-success-custom {
+    color: #11734d;
+    background: var(--success-light);
+}
+
+.badge-danger-custom {
+    color: #b52f39;
+    background: var(--danger-light);
+}
+
+.badge-warning-custom {
+    color: #8a5a10;
+    background: var(--warning-light);
+}
+
+.badge-neutral-custom {
+    color: #526078;
+    background: #edf0f5;
+}
+
+/* =========================================
+   11. TABEL GLOBAL
+========================================= */
+
+.table-wrapper-custom {
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+.table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.table-custom th {
+    padding: 13px 14px;
+
+    color: #64748b;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border-color);
+
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.table-custom td {
+    padding: 14px;
+
+    color: var(--text-primary);
+    border-bottom: 1px solid #edf0f5;
+
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.table-custom tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-custom tbody tr:hover td {
+    background: #fafbff;
+}
+
+/* =========================================
+   12. ALERT GLOBAL
+========================================= */
+
+.alert-custom {
+    padding: 14px 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.alert-success-custom {
+    color: #11734d;
+    background: var(--success-light);
+    border-color: #bcebd2;
+}
+
+.alert-danger-custom {
+    color: #b52f39;
+    background: var(--danger-light);
+    border-color: #ffd0d4;
+}
+
+.alert-warning-custom {
+    color: #8a5a10;
+    background: var(--warning-light);
+    border-color: #f5df9d;
+}
+
+.alert-info-custom {
+    color: #2853a5;
+    background: #eaf2ff;
+    border-color: #cbdcff;
+}
+
+/* =========================================
+   13. EMPTY STATE
+========================================= */
+
+.empty-state-custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.empty-state-custom i {
+    margin-bottom: 16px;
+    color: #9aaccb;
+    font-size: 42px;
+}
+
+.empty-state-custom h3 {
+    margin-bottom: 8px;
+    font-size: 17px;
+}
+
+.empty-state-custom p {
+    max-width: 400px;
+    margin-bottom: 0;
+    color: var(--text-secondary);
+}
+
+/* =========================================
+   14. FOOTER GLOBAL
+========================================= */
+
+.footer-custom {
+    padding: 24px;
+    border-top: 1px solid var(--border-color);
+
+    color: var(--text-secondary);
+    background: white;
+
+    font-size: 12px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+/* =========================================
+   15. UTILITAS GLOBAL
+========================================= */
+
+.text-primary-custom {
+    color: var(--primary);
+}
+
+.text-success-custom {
+    color: var(--success);
+}
+
+.text-danger-custom {
+    color: var(--danger);
+}
+
+.bg-soft-custom {
+    background: var(--bg-soft);
+}
+
+.border-custom {
+    border: 1px solid var(--border-color);
+}
+
+.rounded-custom {
+    border-radius: var(--radius-md);
+}
+
+.shadow-custom {
+    box-shadow: var(--shadow-sm);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+/* =========================================
+   16. FOCUS DAN AKSESIBILITAS
+========================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #7298f2;
+    outline-offset: 3px;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =========================================
+   17. RESPONSIVE TABLET
+========================================= */
+
+@media (max-width: 991.98px) {
+    .container-custom {
+        padding-inline: 20px;
+    }
+
+    .section {
+        padding-block: 48px;
+    }
+
+    .navbar-custom .container-custom {
+        min-height: 68px;
+    }
+
+    .navbar-menu-custom {
+        gap: 18px;
+    }
+}
+
+/* =========================================
+   18. RESPONSIVE HP
+========================================= */
+
+@media (max-width: 575.98px) {
+    body {
+        font-size: 13px;
+    }
+
+    .container-custom {
+        padding-inline: 16px;
+    }
+
+    .section {
+        padding-block: 36px;
+    }
+
+    .navbar-custom .container-custom {
+        gap: 12px;
+        min-height: 62px;
+    }
+
+    .navbar-brand-custom {
+        font-size: 19px;
+    }
+
+    .navbar-menu-custom {
+        gap: 12px;
+    }
+
+    .btn-custom {
+        min-height: 40px;
+        padding: 9px 13px;
+        font-size: 13px;
+    }
+
+    .card-custom {
+        padding: 18px;
+        border-radius: var(--radius-md);
+    }
+
+    .section-heading {
+        margin-bottom: 20px;
+    }
+
+    .table-custom th,
+    .table-custom td {
+        padding: 11px 10px;
+    }
+
+    .footer-custom {
+        padding: 20px 16px;
+    }
+}
+
+/* =========================================
+   19. PREFERENSI GERAK
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
