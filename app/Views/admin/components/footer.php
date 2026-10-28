@@ -26,6 +26,8 @@ foreach ($possibleJsPaths as $p) {
         </main>
     </div>
 
+    <div id="toastArea" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
     <!-- MODAL TAMBAH DATA (SIMULASI) -->
     <?php include __DIR__ . '/modal_data.php'; ?>
 
@@ -44,6 +46,15 @@ foreach ($possibleJsPaths as $p) {
             fallbackScript.src = '../admin.js';
             document.body.appendChild(fallbackScript);
         }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        <?php if (!empty($flash) && empty($flash['target'])): ?>
+            if (typeof showToast === 'function') {
+                showToast(<?= json_encode($flash['message']); ?>, <?= json_encode($flash['type'] === 'error'); ?>);
+            }
+        <?php endif; ?>
+    });
     </script>
 
 </body>
