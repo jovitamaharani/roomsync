@@ -11,10 +11,17 @@ if (!function_exists('adminNavUrl')) {
         if (isset($_GET['url']) || isset($_GET['route'])) {
             return "index.php?url=admin/" . $module;
         }
-        if (file_exists($module . '/' . $module . '.php')) {
-            return $module . '/' . $module . '.php';
+
+        // Tentukan base path admin secara dinamis (misal: /admin atau /RoomSync1/admin)
+        $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        if (preg_match('#^(.*?/admin)(/|$)#i', $scriptName, $m)) {
+            $adminBase = rtrim($m[1], '/');
+        } else {
+            $dir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+            $adminBase = ($dir === '' || $dir === '/') ? '/admin' : $dir . '/admin';
         }
-        return "../" . $module . "/" . $module . ".php";
+
+        return $adminBase . '/' . $module . '/index.php';
     }
 }
 
@@ -83,6 +90,9 @@ if (isset($_GET['controller'])) {
         </a>
         <a href="<?= adminNavUrl('courses') ?>" class="side-link <?= $activeAdminPage === 'courses' ? 'active' : '' ?>">
             <i class="bi bi-book"></i> Daftar Mata Kuliah
+        </a>
+        <a href="<?= adminNavUrl('users') ?>" class="side-link <?= $activeAdminPage === 'users' ? 'active' : '' ?>">
+            <i class="bi bi-person-gear"></i> Kelola Pengguna
         </a>
     </nav>
 

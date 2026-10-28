@@ -98,7 +98,7 @@ a {
 .page-content {
     flex: 1;
     min-width: 0;
-    padding: 36px 40px 42px;
+    padding: 24px 40px 42px;
 }
 
 .admin-page {
@@ -373,11 +373,13 @@ a {
     justify-content: space-between;
     gap: 20px;
 
-    min-height: 112px;
-    padding: 24px 40px;
+    margin: 28px 40px 0 40px;
+    padding: 22px 28px;
 
-    border-bottom: 1px solid var(--line);
+    border: 1px solid var(--line);
+    border-radius: 20px;
     background: white;
+    box-shadow: var(--shadow);
 }
 
 .topbar>div {
@@ -658,31 +660,141 @@ table {
 }
 
 /* =========================================
-   13. DATATABLES
+   13. DATATABLES (https://datatables.net/)
 ========================================= */
 
 .dt-container {
     width: 100%;
     color: var(--ink);
     font-size: 13px;
+    margin-top: 8px;
 }
 
 .dt-container .dt-layout-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 12px;
-    margin: 12px 0;
+    margin: 14px 0;
+    flex-wrap: wrap;
+}
+
+/* =========================================
+   13. DATA TABLES CUSTOM THEME
+========================================= */
+
+div.dt-container div.dt-layout-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-bottom: 1rem !important;
+}
+
+div.dt-container div.dt-layout-cell.dt-layout-start {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+div.dt-container div.dt-layout-cell.dt-layout-end {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    margin-left: auto !important;
+}
+
+/* Custom dropdown filters inline inside DataTables toolbar */
+.table-custom-filters {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin: 0 !important;
+}
+
+.table-custom-filters .form-select {
+    width: auto !important;
+    min-width: 140px !important;
+    max-width: 220px !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 6px 32px 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #dce3ee !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.table-custom-filters .form-select:hover {
+    border-color: #cbd5e1 !important;
+}
+
+.table-custom-filters .form-select:focus {
+    border-color: var(--blue) !important;
+    box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.12) !important;
+    outline: none !important;
+}
+
+.dt-container .dt-buttons {
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.dt-container .dt-buttons .dt-button,
+.dt-container .dt-buttons button.dt-button {
+    background: white !important;
+    border: 1px solid #dce3ee !important;
+    border-radius: 8px !important;
+    color: #334155 !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    padding: 6px 14px !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dt-container .dt-buttons .dt-button:hover,
+.dt-container .dt-buttons button.dt-button:hover {
+    background: #f8fafc !important;
+    border-color: var(--blue) !important;
+    color: var(--blue) !important;
+}
+
+.dt-container .dt-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dt-container .dt-search label {
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0;
 }
 
 .dt-container .dt-search input,
 .dt-container .dt-length select {
-    min-height: 36px;
-    padding: 6px 10px;
-
+    min-height: 38px;
+    padding: 6px 12px;
     border: 1px solid #dce3ee;
     border-radius: 8px;
-
     color: var(--ink);
     background: white;
     outline: none;
+    transition: border-color 0.2s;
 }
 
 .dt-container .dt-search input:focus,
@@ -691,27 +803,54 @@ table {
     box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.1);
 }
 
+.dt-container .dt-info {
+    color: var(--muted);
+    font-size: 13px;
+    padding-top: 6px;
+}
+
+.dt-container .dt-paging {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .dt-container .dt-paging .dt-paging-button {
     margin: 0 2px;
-    padding: 6px 11px;
-
-    border: 1px solid transparent;
-    border-radius: 7px;
-
-    color: var(--ink) !important;
-    background: transparent;
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #475569 !important;
+    background: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-.dt-container .dt-paging .dt-paging-button.current {
-    border-color: #dce6ff;
-    color: var(--blue) !important;
-    background: var(--blue-light);
+div.dt-container .dt-paging .dt-paging-button.current,
+div.dt-container .dt-paging .dt-paging-button.current:hover,
+div.dt-container .dt-paging .dt-paging-button.current:focus,
+.dt-container .dt-paging .dt-paging-button.current,
+.dt-container .dt-paging .dt-paging-button.current:hover,
+.dt-container .dt-paging .dt-paging-button.current *,
+.dt-container .dt-paging .page-item.active .page-link,
+.dt-container .dt-paging .page-item.active a {
+    color: #ffffff !important;
+    background: var(--blue) !important;
+    background-color: var(--blue) !important;
+    border-color: var(--blue) !important;
+    box-shadow: 0 2px 6px rgba(49, 95, 203, 0.3) !important;
 }
 
-.dt-container .dt-paging .dt-paging-button:hover {
-    border-color: var(--line);
+.dt-container .dt-paging .dt-paging-button:hover:not(.current):not(.disabled) {
+    border-color: #cbd5e1;
     color: var(--navy) !important;
-    background: #f5f7fc;
+    background: #f1f5f9;
+}
+
+.dt-container .dt-paging .dt-paging-button.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 /* =========================================
@@ -894,11 +1033,12 @@ table {
     }
 
     .topbar {
-        padding: 22px 28px;
+        margin: 24px 28px 0 28px;
+        padding: 20px 24px;
     }
 
     .page-content {
-        padding: 28px;
+        padding: 20px 28px 28px;
     }
 
     .welcome-panel {
@@ -953,12 +1093,14 @@ table {
     }
 
     .topbar {
-        min-height: 88px;
-        padding: 18px 24px;
+        min-height: auto;
+        margin: 20px 24px 0 24px;
+        padding: 16px 20px;
+        border-radius: 18px;
     }
 
     .page-content {
-        padding: 24px;
+        padding: 18px 24px 24px;
     }
 
     .welcome-panel {
@@ -981,7 +1123,9 @@ table {
 
     .topbar {
         gap: 12px;
-        padding: 16px;
+        margin: 16px 16px 0 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
     }
 
     #pageTitle {
@@ -996,7 +1140,7 @@ table {
     }
 
     .page-content {
-        padding: 16px;
+        padding: 14px 16px 20px;
     }
 
     .welcome-panel {
@@ -1093,5 +1237,30 @@ textarea:focus-visible {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+}
+@media (max-width: 768px) {
+    div.dt-container div.dt-layout-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    div.dt-container div.dt-layout-cell.dt-layout-start,
+    div.dt-container div.dt-layout-cell.dt-layout-end {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+    .table-custom-filters {
+        width: 100% !important;
+    }
+    .table-custom-filters .form-select {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+    }
+    .dt-container .dt-search {
+        width: 100% !important;
+    }
+    .dt-container .dt-search input {
+        flex: 1 !important;
+        width: 100% !important;
     }
 }

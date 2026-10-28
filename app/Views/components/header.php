@@ -31,8 +31,9 @@ $pageTitle = $pageTitle ?? 'Admin JTI - SIKARA';
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- DataTables Bootstrap 5 CSS -->
-    <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- DataTables CSS (https://datatables.net/) -->
+    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/3.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -54,10 +55,8 @@ foreach ($possibleCssPaths as $p) {
     }
 }
 ?>
-    <link rel="stylesheet" href="<?= $adminCssPath ?>">
-    <link rel="stylesheet" href="../assets/css/admin.css">
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link href="<?= $adminCssPath ?>" rel="stylesheet">
 </head>
 
 <body>
-    <div class="admin-shell">
+    <div class="admin-layout">
