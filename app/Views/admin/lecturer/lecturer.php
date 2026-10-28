@@ -10,9 +10,6 @@ include __DIR__ . '/../components/header.php';
 include __DIR__ . '/../components/sidebar.php';
 ?>
 
-<!-- BACKDROP SIDEBAR MOBILE -->
-<div class="sidebar-scrim" id="sidebarScrim"></div>
-
 <!-- MAIN CONTENT -->
 <main class="main-area">
 
