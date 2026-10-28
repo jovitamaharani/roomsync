@@ -8,7 +8,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="assets/css/beranda.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -16,7 +16,7 @@
 
     <nav>
         <a href="index.php?controller=role&action=index">Role</a> |
-        <a href="index.php?controller=class_year&action=index">Tahun Ajaran</a>
+        <a href="index.php?controller=academic_year&action=index">Tahun Ajaran</a>
     </nav>
 
     <?php if (!empty($_SESSION['flash'])): ?>

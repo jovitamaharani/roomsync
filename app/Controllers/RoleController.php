@@ -14,7 +14,7 @@ class RoleController
         $this->roleModel = new Role($db);
     }
 
-        private function redirect($type = null, $message = null)
+    private function redirect($type = null, $message = null)
     {
         if ($type && $message) {
             $_SESSION['flash'] = ['type' => $type, 'message' => $message];
@@ -26,12 +26,12 @@ class RoleController
     public function index()
     {
         $roles = $this->roleModel->getAll();
-        require_once "app/Views/user/role/index.php";
+        require_once "app/Views/admin/role/index.php";
     }
 
     public function create()
     {
-        require_once "app/Views/user/role/create.php";
+        require_once "app/Views/admin/role/create.php";
     }
 
     public function store()
@@ -50,9 +50,9 @@ class RoleController
     {
         $role = $this->roleModel->getById($id);
         if (!$role) {
-        $this->redirect('error', 'Data tidak ditemukan');
-            }
-        require_once "app/Views/user/role/edit.php";
+            $this->redirect('error', 'Data tidak ditemukan');
+        }
+        require_once "app/Views/admin/role/edit.php";
     }
 
     public function update()

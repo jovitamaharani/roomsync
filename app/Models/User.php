@@ -2,7 +2,7 @@
 class User
 {
     private $conn;
-    private $table = "Users";
+    private $table = "users";
 
     public function __construct($db)
     {
@@ -11,7 +11,7 @@ class User
 
     public function findByEmail($email)
     {
-        $query = "SELECT u.id, u.role_id, u.class_id, u.name, u.email, u.password, r.name as role_name
+        $query = "SELECT u.id, u.role_id, u.student_class_id, u.name, u.email, u.password, r.name as role_name
         FROM " . $this->table . " u
         JOIN roles r on r.id = u.role_id
         WHERE u.email = :email
