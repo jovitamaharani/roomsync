@@ -1,19 +1,27 @@
 <?php
 $activeAdminPage = $activeAdminPage ?? 'overview';
-$isRouted = isset($_GET['url']) || isset($_GET['route']) || (isset($_GET['controller']) && $_GET['controller'] === 'admin');
+$isRouted = isset($_GET['url']) || isset($_GET['route']) || isset($_GET['controller']);
 
-// Fungsi pembantu URL agar kompatibel di mode router maupun akses file langsung
+// Fungsi pembantu URL agar kompatibel di mode router MVC maupun akses file langsung
 if (!function_exists('adminNavUrl')) {
     function adminNavUrl($module)
     {
         if (isset($_GET['controller'])) {
-            return "index.php?controller=admin&action=" . $module;
+            $map = [
+                'role' => 'role',
+                'lecturer' => 'lecturer',
+                'academic_year' => 'academic_year',
+                'years' => 'academic_year',
+                'overview' => 'home'
+            ];
+            $ctrl = $map[$module] ?? $module;
+            return "index.php?controller=" . $ctrl . "&action=index";
         }
         if (isset($_GET['url']) || isset($_GET['route'])) {
             return "index.php?url=admin/" . $module;
         }
 
-        // Tentukan base path admin secara dinamis (misal: /admin atau /RoomSync1/admin)
+        // Tentukan base path admin secara dinamis
         $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
         if (preg_match('#^(.*?/admin)(/|$)#i', $scriptName, $m)) {
             $adminBase = rtrim($m[1], '/');
@@ -38,18 +46,8 @@ if (isset($_GET['controller'])) {
 } else {
     $userHomeUrl = '../../index.php';
 }
-
-$logoutUrl = '#';
-if (isset($_GET['controller'])) {
-    $logoutUrl = 'index.php?controller=auth&action=login';
-} elseif (isset($_GET['url']) || isset($_GET['route'])) {
-    $logoutUrl = 'logout.php';
-} elseif (file_exists('../../logout.php')) {
-    $logoutUrl = '../../logout.php';
-} else {
-    $logoutUrl = '../../index.php?controller=auth&action=login';
-}
 ?>
+
 <aside class="sidebar" id="adminSidebar">
 
     <a class="brand" href="<?= adminNavUrl('overview') ?>">
@@ -102,28 +100,29 @@ if (isset($_GET['controller'])) {
         <a href="<?= adminNavUrl('users') ?>" class="side-link <?= $activeAdminPage === 'users' ? 'active' : '' ?>">
             <i class="bi bi-person-gear"></i> Kelola Pengguna
         </a>
+        <a href="<?= adminNavUrl('role') ?>" class="side-link <?= $activeAdminPage === 'roles' ? 'active' : '' ?>">
+            <i class="bi bi-shield-lock"></i> Kelola Role
+        </a>
     </nav>
 
     <div class="sidebar-bottom">
-        <a href="<?= $userHomeUrl ?>" class="btn btn-sm btn-outline-info w-100 mb-3 text-start" style="color: #b3d7ff !important; border-color: rgba(255,255,255,0.2);">
+        <a href="<?= $userHomeUrl ?>" class="btn btn-sm btn-outline-info w-100 mb-3 text-start"
+            style="color: #b3d7ff !important; border-color: rgba(255,255,255,0.2);">
             <i class="bi bi-box-arrow-up-right me-2"></i>
             Tampilan User
         </a>
 
         <div class="admin-identity">
             <span class="avatar">A</span>
-            <span>
-                <b id="adminName">Admin JTI</b>
-                <small>Administrator</small>
-            </span>
+            <div class="admin-identity-info">
+                <span class="name" id="adminName">Administrator JTI</span>
+                <span class="role">Admin JTI</span>
+            </div>
         </div>
 
-        <form action="index.php?controller=auth&action=logout" method="POST">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
-            <button type="submit" class="btn btn-sm btn-outline-light w-100 mt-3" id="logoutBtn"> <i
-                    class="bi bi-box-arrow-left me-2"></i>
-                Keluar</button>
-        </form>
+        <a href="index.php?controller=auth&action=logout" class="btn btn-sm btn-outline-light w-100 mt-3" id="logoutBtn">
+            <i class="bi bi-box-arrow-right me-1"></i> Keluar
+        </a>
     </div>
 
 </aside>

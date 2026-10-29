@@ -1,5 +1,6 @@
 <?php
-require_once "config/Database.php";
+require_once "Config/Database.php";
+require_once "Config/Auth.php";
 require_once "app/Models/Role.php";
 
 class RoleController
@@ -12,6 +13,17 @@ class RoleController
         $database = new Database();
         $db = $database->getConnection();
         $this->roleModel = new Role($db);
+    }
+
+    private function validate($name)
+    {
+        if ($name === '') {
+            return "Nama role tidak boleh kosong.";
+        }
+        if (strlen($name) > 50) {
+            return "Nama role maksimal 50 karakter.";
+        }
+        return null;
     }
 
     private function redirect($type = null, $message = null)
@@ -31,53 +43,96 @@ class RoleController
 
     public function create()
     {
-        require_once "app/Views/admin/role/create.php";
+        $this->index();
     }
 
     public function store()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = trim($_POST['name']);
-            if (!empty($name)) {
-                $this->roleModel->create($name);
+            $name = trim($_POST['name'] ?? '');
+
+            $error = $this->validate($name);
+            if ($error) {
+                $this->redirect('error', $error);
             }
-            header("Location: index.php?controller=role&action=index");
-            $this->redirect('success', 'Berhasil Ditambahkan');
+
+            try {
+                if ($this->roleModel->create($name)) {
+                    $this->redirect('success', 'Data role berhasil ditambahkan.');
+                } else {
+                    $this->redirect('error', 'Gagal menambahkan data role.');
+                }
+            } catch (PDOException $e) {
+                if ($e->getCode() === '23505') {
+                    $this->redirect('error', 'Nama role sudah terdaftar.');
+                }
+                throw $e;
+            }
         }
+        $this->redirect();
     }
 
-    public function edit($id)
+    public function edit($id = null)
     {
-        $role = $this->roleModel->getById($id);
-        if (!$role) {
-            $this->redirect('error', 'Data tidak ditemukan');
-        }
-        require_once "app/Views/admin/role/edit.php";
+        $this->index();
     }
 
     public function update()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['id'];
-            $name = trim($_POST['name']);
-            // debug
-            // var_dump($_POST);
-            // var_dump($name);
-            // exit;
-            if (!empty($id) && !empty($name)) {
-                $this->roleModel->update($id, $name);
+            $id = trim($_POST['id'] ?? '');
+            $name = trim($_POST['name'] ?? '');
+
+            if (empty($id)) {
+                $this->redirect('error', 'ID role tidak valid.');
             }
-            header("Location: index.php?controller=role&action=index");
-            exit;
+
+            $error = $this->validate($name);
+            if ($error) {
+                $this->redirect('error', $error);
+            }
+
+            try {
+                if ($this->roleModel->update($id, $name)) {
+                    $this->redirect('success', 'Data role berhasil diperbarui.');
+                } else {
+                    $this->redirect('error', 'Gagal memperbarui data role.');
+                }
+            } catch (PDOException $e) {
+                if ($e->getCode() === '23505') {
+                    $this->redirect('error', 'Nama role sudah terdaftar.');
+                }
+                throw $e;
+            }
         }
+        $this->redirect();
     }
 
-    public function delete($id)
+    public function delete($id = null)
     {
-        if (!empty($id)) {
-            $this->roleModel->delete($id);
+        $id = $id ?? ($_POST['id'] ?? ($_GET['id'] ?? null));
+
+        if (empty($id)) {
+            $this->redirect('error', 'ID role tidak valid.');
         }
-        header("Location: index.php?controller=role&action=index");
-        exit;
+
+        // Proteksi role Admin utama agar tidak terhapus
+        $role = $this->roleModel->getById($id);
+        if ($role && strtolower($role['name']) === 'admin') {
+            $this->redirect('error', 'Role Admin adalah peran sistem utama dan tidak boleh dihapus.');
+        }
+
+        try {
+            if ($this->roleModel->delete($id)) {
+                $this->redirect('success', 'Data role berhasil dihapus.');
+            } else {
+                $this->redirect('error', 'Gagal menghapus data role.');
+            }
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23503') {
+                $this->redirect('error', 'Role tidak bisa dihapus karena masih digunakan oleh data pengguna.');
+            }
+            throw $e;
+        }
     }
 }
