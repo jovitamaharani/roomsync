@@ -1,17 +1,16 @@
 <?php
-require_once "config/Database.php";
-require_once "app/Models/Role.php";
+require_once __DIR__ . "/../../config/database.php";
+require_once __DIR__ . "/../Models/ActivityType.php";
 
-class RoleController
+class ActivityTypesController
 {
-    private $coursesModel;
+    private $activityTypeModel;
 
     public function __construct()
     {
         Auth::requireRole(['Admin']);
-        $database = new Database();
-        $db = $database->getConnection();
-        $this->coursesModel = new Role($db);
+        $db = (new Database())->getConnection();
+        $this->activityTypeModel = new ActivityType($db);
     }
 
     private function redirect($type = null, $message = null)
@@ -23,57 +22,103 @@ class RoleController
         exit;
     }
 
-    public function index()
+    private function isUuid($id)
     {
-        $roles = $this->coursesModel->getAll();
-        require_once "app/Views/activityTypes/index.php";
+        return is_string($id) && preg_match(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $id
+        ) === 1;
     }
 
-    public function create()
+    private function validate($name)
     {
-        require_once "app/Views/activityTypes/create.php";
+        if ($name === '') {
+            return "Nama jenis aktivitas wajib diisi.";
+        }
+        if (mb_strlen($name) > 50) {
+            return "Nama jenis aktivitas maksimal 50 karakter.";
+        }
+        return null;
+    }
+
+    public function index()
+    {
+        $activityTypes = $this->activityTypeModel->getAll();
+        require_once __DIR__ . "/../Views/activityTypes/index.php";
     }
 
     public function store()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = trim($_POST['name']);
-            if (!empty($name)) {
-                $this->coursesModel->create($name);
-            }
-            header("Location: index.php?controller=activity_types&action=index");
-            $this->redirect('success', 'Berhasil Ditambahkan');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect();
         }
-    }
 
-    public function edit($id)
-    {
-        $role = $this->coursesModel->getById($id);
-        if (!$role) {
-            $this->redirect('error', 'Data tidak ditemukan');
+        $name = trim($_POST['name'] ?? '');
+        if ($error = $this->validate($name)) {
+            $this->redirect('error', $error);
         }
-        require_once "app/Views/user/role/edit.php";
+
+        try {
+            $this->activityTypeModel->create($name);
+            $this->redirect('success', 'Jenis aktivitas berhasil ditambahkan.');
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23505') {
+                $this->redirect('error', 'Jenis aktivitas dengan nama itu sudah ada.');
+            }
+            throw $e;
+        }
     }
 
     public function update()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['id'];
-            $name = trim($_POST['name']);
-            if (!empty($id) && !empty($name)) {
-                $this->coursesModel->update($id, $name);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect();
+        }
+
+        $id   = $_POST['id'] ?? '';
+        $name = trim($_POST['name'] ?? '');
+
+        if (!$this->isUuid($id)) {
+            $this->redirect('error', 'ID tidak valid.');
+        }
+        if ($error = $this->validate($name)) {
+            $this->redirect('error', $error);
+        }
+
+        try {
+            if (!$this->activityTypeModel->update($id, $name)) {
+                $this->redirect('error', 'Data tidak ditemukan.');
             }
-            header("Location: index.php?controller=role&action=index");
-            exit;
+            $this->redirect('success', 'Jenis aktivitas berhasil diperbarui.');
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23505') {
+                $this->redirect('error', 'Jenis aktivitas dengan nama itu sudah ada.');
+            }
+            throw $e;
         }
     }
 
-    public function delete($id)
+    public function delete($id = null)
     {
-        if (!empty($id)) {
-            $this->coursesModel->delete($id);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('error', 'Permintaan tidak valid.');
         }
-        header("Location: index.php?controller=role&action=index");
-        exit;
+
+        // modal hapus mengirim id lewat POST
+        $id = $_POST['id'] ?? $id;
+        if (!$this->isUuid($id)) {
+            $this->redirect('error', 'ID tidak valid.');
+        }
+
+        try {
+            if (!$this->activityTypeModel->delete($id)) {
+                $this->redirect('error', 'Data tidak ditemukan.');
+            }
+            $this->redirect('success', 'Jenis aktivitas berhasil dihapus.');
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23503') {
+                $this->redirect('error', 'Jenis aktivitas tidak bisa dihapus karena sudah dipakai pada laporan.');
+            }
+            throw $e;
+        }
     }
 }

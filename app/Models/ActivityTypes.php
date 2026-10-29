@@ -1,5 +1,5 @@
 <?php
-class Room
+class ActivityType
 {
     private $conn;
     private $table = "activity_types";
@@ -11,9 +11,7 @@ class Room
 
     public function getAll()
     {
-        $stmt = $this->conn->prepare(
-            "SELECT * FROM " . $this->table . " ORDER BY name"
-        );
+        $stmt = $this->conn->prepare("SELECT * FROM " . $this->table . " ORDER BY name");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -26,28 +24,24 @@ class Room
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    private function params(array $d)
-    {
-        return [
-            ':name' => $d['name']
-        ];
-    }
-
-    public function create(array $d)
+    public function create($name)
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO " . $this->table . " (name) VALUES (:name) RETURNING id"
         );
-        $stmt->execute($this->params($d));
+        $stmt->bindValue(":name", $name);
+        $stmt->execute();
         return $stmt->fetchColumn();
     }
 
-    public function update($id, array $d)
+    public function update($id, $name)
     {
         $stmt = $this->conn->prepare(
-            "UPDATE " . $this->table . " SET name = :name, name = :name WHERE id = :id"
+            "UPDATE " . $this->table . " SET name = :name WHERE id = :id"
         );
-        $stmt->execute($this->params($d) + [':id' => $id]);
+        $stmt->bindValue(":id", $id);
+        $stmt->bindValue(":name", $name);
+        $stmt->execute();
         return $stmt->rowCount() > 0;
     }
 
