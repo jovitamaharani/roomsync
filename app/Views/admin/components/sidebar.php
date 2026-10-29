@@ -38,8 +38,18 @@ if (isset($_GET['controller'])) {
 } else {
     $userHomeUrl = '../../index.php';
 }
-?>
 
+$logoutUrl = '#';
+if (isset($_GET['controller'])) {
+    $logoutUrl = 'index.php?controller=auth&action=login';
+} elseif (isset($_GET['url']) || isset($_GET['route'])) {
+    $logoutUrl = 'logout.php';
+} elseif (file_exists('../../logout.php')) {
+    $logoutUrl = '../../logout.php';
+} else {
+    $logoutUrl = '../../index.php?controller=auth&action=login';
+}
+?>
 <aside class="sidebar" id="adminSidebar">
 
     <a class="brand" href="<?= adminNavUrl('overview') ?>">
@@ -95,8 +105,7 @@ if (isset($_GET['controller'])) {
     </nav>
 
     <div class="sidebar-bottom">
-        <a href="<?= $userHomeUrl ?>" class="btn btn-sm btn-outline-info w-100 mb-3 text-start"
-            style="color: #b3d7ff !important; border-color: rgba(255,255,255,0.2);">
+        <a href="<?= $userHomeUrl ?>" class="btn btn-sm btn-outline-info w-100 mb-3 text-start" style="color: #b3d7ff !important; border-color: rgba(255,255,255,0.2);">
             <i class="bi bi-box-arrow-up-right me-2"></i>
             Tampilan User
         </a>
