@@ -164,12 +164,12 @@ include __DIR__ . '/../components/sidebar.php';
                 </div>
 
                 <div class="table-responsive">
-                    <table id="lecturersTable" class="table table-hover align-middle w-100">
+                    <table id="lecturersTable" class="display table table-striped table-hover align-middle w-100">
                         <thead>
                             <tr>
                                 <th>Kode Dosen</th>
                                 <th>Nama Dosen</th>
-                                <th>Aksi</th>
+                                <th class="text-center" style="width: 170px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,7 +182,7 @@ include __DIR__ . '/../components/sidebar.php';
                                         <td>
                                             <?= htmlspecialchars($item['name']); ?>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-outline-warning text-dark me-1"
                                                 data-bs-toggle="modal" data-bs-target="#editModal"
                                                 data-id="<?= htmlspecialchars($item['id']); ?>"
@@ -202,12 +202,7 @@ include __DIR__ . '/../components/sidebar.php';
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="3" class="text-center py-3">Data kosong.</td>
-                                </tr>
                             <?php endif; ?>
-
                         </tbody>
                     </table>
                 </div>
@@ -220,6 +215,72 @@ include __DIR__ . '/../components/sidebar.php';
     <!-- FOOTER & SCRIPTS -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Inisialisasi DataTables resmi dengan Buttons (Copy, Excel, PDF, Print)
+            function initLecturersTable() {
+                if (typeof DataTable === 'undefined') {
+                    setTimeout(initLecturersTable, 50);
+                    return;
+                }
+                if (document.getElementById('lecturersTable') && !DataTable.isDataTable('#lecturersTable')) {
+                    new DataTable('#lecturersTable', {
+                        pageLength: 10,
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, "All"]
+                        ],
+                        order: [],
+                        columnDefs: [
+                            { orderable: false, targets: -1 }
+                        ],
+                        layout: {
+                            topStart: {
+                                buttons: [
+                                    { 
+                                        extend: "copy", 
+                                        text: '<i class="bi bi-clipboard me-1"></i>Copy',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    { 
+                                        extend: "excel", 
+                                        text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    { 
+                                        extend: "pdf", 
+                                        text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    { 
+                                        extend: "print", 
+                                        text: '<i class="bi bi-printer me-1"></i>Print',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    }
+                                ]
+                            },
+                            topEnd: "search",
+                            bottomStart: "info",
+                            bottomEnd: "paging"
+                        },
+                        language: {
+                            search: "Search:",
+                            searchPlaceholder: "Search records...",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                            infoEmpty: "Showing 0 to 0 of 0 entries",
+                            zeroRecords: "No matching records found",
+                            emptyTable: "No data available in table",
+                            paginate: {
+                                first: "«",
+                                last: "»",
+                                next: "›",
+                                previous: "‹"
+                            }
+                        }
+                    });
+                }
+            }
+            initLecturersTable();
+
             const editModalEl = document.getElementById('editModal');
             const addModalEl = document.getElementById('addModal');
 

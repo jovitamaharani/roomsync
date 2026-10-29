@@ -71,8 +71,8 @@ if (isset($_GET['controller'])) {
             class="side-link <?= $activeAdminPage === 'lecturers' ? 'active' : '' ?>">
             <i class="bi bi-person-vcard"></i> Daftar Dosen
         </a>
-        <a href="<?= adminNavUrl('student_class') ?>"
-            class="side-link <?= $activeAdminPage === 'classes' ? 'active' : '' ?>">
+        <a href="app/Views/admin/student_class/index.php"
+            class="side-link">
             <i class="bi bi-people"></i> Daftar Kelas
         </a>
         <a href="<?= adminNavUrl('schedule') ?>"
