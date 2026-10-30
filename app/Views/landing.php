@@ -60,7 +60,7 @@
                         <a class="nav-link" href="../RuangKelas/index.html">Ruang Kelas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../JadwalKelas/index.html">Jadwal Kelas</a>
+                        <a class="nav-link" href="index.php?controller=schedule&action=index">Jadwal Kelas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../Riwayat/index.html">Riwayat</a>
@@ -102,7 +102,7 @@
                             Jelajahi Ruang Kelas
                         </a>
 
-                        <a href="../JadwalKelas/index.html" class="btn btn-light hero-button">
+                        <a href="../schedule/index.html" class="btn btn-light hero-button">
                             <i class="bi bi-calendar3"></i>
                             Lihat Jadwal Kuliah
                         </a>
