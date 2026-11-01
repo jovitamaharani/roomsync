@@ -26,6 +26,7 @@ foreach ($possibleJsPaths as $p) {
         </main>
     </div>
 
+    <!-- Toast Notification -->
     <div id="toastArea" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
 
     <!-- MODAL TAMBAH DATA (SIMULASI) -->
