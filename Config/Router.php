@@ -23,7 +23,13 @@ class Router {
                 echo "404 - Action '$action' tidak ditemukan pada $controllerName!";
             }
         } else {
-            echo "404 - Controller '$controllerName' tidak ditemukan!";
+            // FALLBACK: Bila Controller belum dibuat, langsung buka View admin-nya jika ada
+            $adminViewFile = __DIR__ . "/../app/Views/admin/" . $controllerParam . "/index.php";
+            if (file_exists($adminViewFile)) {
+                require_once $adminViewFile;
+            } else {
+                echo "404 - Controller '$controllerName' maupun View admin '$controllerParam' tidak ditemukan!";
+            }
         }
     }
 }
