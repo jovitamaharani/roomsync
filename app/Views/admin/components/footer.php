@@ -35,6 +35,11 @@ foreach ($possibleJsPaths as $p) {
     <!-- JAVASCRIPT LIBRARY -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dropdown dengan pencarian (Tom Select, tanpa jQuery) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
 
     <!-- DataTables 2 JS & Extensions (https://datatables.net/) -->
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
