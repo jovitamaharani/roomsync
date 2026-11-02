@@ -6,46 +6,29 @@ $isRouted = isset($_GET['url']) || isset($_GET['route']) || isset($_GET['control
 if (!function_exists('adminNavUrl')) {
     function adminNavUrl($module)
     {
-        if (isset($_GET['controller'])) {
-            $map = [
-                'role' => 'role',
-                'lecturer' => 'lecturer',
-                'academic_year' => 'academic_year',
-                'years' => 'academic_year',
-                'overview' => 'home'
-            ];
-            $ctrl = $map[$module] ?? $module;
-            return "index.php?controller=" . $ctrl . "&action=index";
-        }
-        if (isset($_GET['url']) || isset($_GET['route'])) {
-            return "index.php?url=admin/" . $module;
-        }
+        $map = [
+            'role' => 'role',
+            'lecturer' => 'lecturer',
+            'academic_year' => 'academic_year',
+            'years' => 'academic_year',
+            'overview' => 'home',
+            'rooms' => 'rooms',
+            'room' => 'rooms'
+        ];
+        $ctrl = $map[$module] ?? $module;
 
-        // Tentukan base path admin secara dinamis
         $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-        if (preg_match('#^(.*?/admin)(/|$)#i', $scriptName, $m)) {
-            $adminBase = rtrim($m[1], '/');
-        } else {
-            $dir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
-            $adminBase = ($dir === '' || $dir === '/') ? '/admin' : $dir . '/admin';
+        $isDirectAdmin = preg_match('#/app/Views/admin/#i', $scriptName);
+
+        if ($isDirectAdmin) {
+            return '../' . $module . '/index.php';
         }
 
-        return $adminBase . '/' . $module . '/index.php';
+        return "index.php?controller=" . $ctrl . "&action=index";
     }
 }
 
-$userHomeUrl = '#';
-if (isset($_GET['controller'])) {
-    $userHomeUrl = 'index.php?controller=home';
-} elseif (isset($_GET['url']) || isset($_GET['route'])) {
-    $userHomeUrl = 'index.php?url=dashboard';
-} elseif (file_exists('../../app/Views/landing.php') || file_exists('../app/Views/landing.php')) {
-    $userHomeUrl = '../../index.php';
-} elseif (file_exists('../../user/dashboard/dashboard.php')) {
-    $userHomeUrl = '../../user/dashboard/dashboard.php';
-} else {
-    $userHomeUrl = '../../index.php';
-}
+$userHomeUrl = 'index.php?controller=user';
 ?>
 
 <aside class="sidebar" id="adminSidebar">

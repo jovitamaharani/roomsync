@@ -1,0 +1,661 @@
+/* ================================================================
+   LANDING PAGE — Reference-matched layout (Compact Contained Hero)
+   Adapts the SIKARA landing page hero and sections to the contained,
+   floating rounded-card layout shown in the reference image.
+   Only targets #viewLanding — zero effect on Dashboard, Login,
+   Room Detail, Activity Report, or any other view.
+   ================================================================ */
+
+/* ------------------------------------------------------------------
+   0.  PAGE CANVAS — Centered & Contained (Doesn't Fill Entire Screen)
+   ------------------------------------------------------------------ */
+#viewLanding {
+  background: #f0f3f8;
+}
+
+#viewLanding .landing-page-wrapper {
+  padding: 24px 20px 48px;
+}
+
+#viewLanding .landing-page-canvas {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------
+   1.  HERO SECTION — Floating Rounded Card (All 4 Corners Rounded)
+   ------------------------------------------------------------------ */
+#viewLanding .hero-rounded-banner {
+  padding: 40px 48px;
+  border-radius: 24px;
+  background: linear-gradient(125deg, #071940 0%, #0d2a6a 50%, #153e98 100%);
+  box-shadow: 0 16px 40px rgba(7, 25, 64, 0.16);
+  min-height: auto;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+#viewLanding .hero-banner-inner {
+  min-height: 280px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: center;
+}
+
+/* -- Left column -- */
+#viewLanding .hero-banner-left {
+  max-width: 440px;
+}
+
+#viewLanding .hero-brand-headline {
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 0 0 12px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+#viewLanding .sparkle-star {
+  display: none;
+}
+
+#viewLanding .hero-banner-description {
+  max-width: 400px;
+  margin: 0 0 16px;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #cbd7ee;
+}
+
+/* -- Hero search bar -- */
+#viewLanding .landing-room-search {
+  height: 40px;
+  padding: 4px 5px 4px 14px;
+  border-radius: 10px;
+  gap: 10px;
+  max-width: 390px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+}
+
+#viewLanding .landing-room-search svg {
+  width: 17px;
+  height: 17px;
+  color: #8b96a7;
+  flex-shrink: 0;
+}
+
+#viewLanding .landing-room-search input {
+  font-size: 11px;
+  padding: 6px 0;
+  font-family: 'Poppins', sans-serif;
+  color: #1a202c;
+  border: 0;
+  outline: 0;
+  flex: 1;
+}
+
+#viewLanding .landing-room-search button {
+  min-width: 70px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  padding: 0 16px;
+  background: #0b2054;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+#viewLanding .landing-room-search button:hover {
+  background: #153278;
+}
+
+/* -- CTA group: Both White Pills with Navy Text -- */
+#viewLanding .hero-banner-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+#viewLanding .btn-hero-dark-pill,
+#viewLanding .hero-sub-link {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  color: #0b2054;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#viewLanding .btn-hero-dark-pill:hover,
+#viewLanding .hero-sub-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  color: #0b2054;
+  background: #ffffff;
+}
+
+#viewLanding .btn-hero-dark-pill svg,
+#viewLanding .hero-sub-link svg {
+  width: 15px;
+  height: 15px;
+  color: #0b2054;
+}
+
+/* -- Hide curved arrow & back phone -- */
+#viewLanding .curved-arrow-doodle,
+#viewLanding .back-phone {
+  display: none;
+}
+
+/* -- Right column: Single Front White Phone Mockup -- */
+#viewLanding .hero-banner-right {
+  height: 300px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: none;
+}
+
+#viewLanding .front-phone {
+  width: 200px;
+  height: 305px;
+  background: #ffffff;
+  color: #172238;
+  border-radius: 22px;
+  padding: 12px 14px;
+  box-shadow: 0 16px 40px rgba(4, 15, 38, 0.35);
+  position: relative;
+  right: 0;
+  top: 0;
+  transform: rotate(3deg);
+}
+
+#viewLanding .front-phone-collection {
+  display: none;
+}
+
+#viewLanding .front-phone-rooms-list {
+  margin-top: 6px;
+  gap: 4px;
+}
+
+#viewLanding .mini-room-row {
+  padding: 6px 0;
+}
+
+/* ------------------------------------------------------------------
+   2.  PARTNERS / DIDUKUNG SECTION (hidden per reference)
+   ------------------------------------------------------------------ */
+#viewLanding .partners-section {
+  display: none;
+}
+
+/* ------------------------------------------------------------------
+   3.  FEATURE CARDS SECTION ("Optimalkan Pemanfaatan")
+   ------------------------------------------------------------------ */
+#viewLanding .two-feature-cards-section {
+  margin-top: 36px;
+}
+
+#viewLanding .section-large-title {
+  margin: 0 auto 28px;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  color: #0e2c6a;
+}
+
+#viewLanding .two-feature-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+#viewLanding .card-feature-wide {
+  min-height: 130px;
+  padding: 24px 22px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(22, 39, 69, 0.06);
+  border: 1px solid #e8ecf3;
+}
+
+#viewLanding .card-feature-title {
+  font-size: 14px;
+  line-height: 1.28;
+  font-weight: 700;
+}
+
+#viewLanding .card-feature-desc {
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+#viewLanding .card-feature-link {
+  font-size: 10px;
+  margin-top: 8px;
+}
+
+#viewLanding .card-graphic-container {
+  transform: scale(0.72);
+  transform-origin: bottom right;
+}
+
+/* ------------------------------------------------------------------
+   4.  ADVANTAGES SECTION ("Keunggulan")
+   ------------------------------------------------------------------ */
+#viewLanding .advantages-section {
+  margin-top: 28px;
+  padding: 26px 28px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(22, 39, 69, 0.06);
+  border: 1px solid #e8ecf3;
+  background: #fff;
+}
+
+#viewLanding .advantages-grid {
+  grid-template-columns: 1.15fr 1fr 1fr;
+  gap: 24px;
+}
+
+#viewLanding .advantage-main-title {
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+#viewLanding .advantage-main-desc,
+#viewLanding .advantage-card-desc {
+  font-size: 9px;
+  line-height: 1.75;
+}
+
+#viewLanding .advantage-icon-circle {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+}
+
+#viewLanding .advantage-icon-circle svg {
+  width: 16px;
+  height: 16px;
+}
+
+#viewLanding .advantage-card-title {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------
+   5.  PULSE BANNER ("Pantau Okupansi & Utilisasi")
+   ------------------------------------------------------------------ */
+#viewLanding .pulse-banner-section {
+  margin-top: 36px;
+  padding: 30px 38px;
+  border-radius: 16px;
+  background: linear-gradient(118deg, #081d4e, #0e2d6e 50%, #1940a0);
+  box-shadow: 0 14px 44px rgba(8, 25, 62, 0.22);
+}
+
+#viewLanding .pulse-banner-title {
+  font-size: 21px;
+  line-height: 1.2;
+  max-width: 320px;
+}
+
+#viewLanding .btn-pulse-action {
+  margin-top: 10px;
+  padding: 0 14px;
+  min-height: 34px;
+  border-radius: 9px;
+  font-size: 10px;
+  gap: 7px;
+}
+
+#viewLanding .btn-pulse-action svg {
+  width: 14px;
+  height: 14px;
+}
+
+#viewLanding .floating-pulse-card {
+  width: 210px;
+  min-width: 210px;
+  padding: 18px;
+  border-radius: 13px;
+}
+
+#viewLanding .pulse-card-number {
+  display: none;
+}
+
+#viewLanding .pulse-card-label {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #697789;
+}
+
+#viewLanding .pulse-card-breakdown {
+  font-size: 10px;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------------
+   6.  REAL-TIME SECTION ("Live Traffic")
+   ------------------------------------------------------------------ */
+#viewLanding .realtime-split-section {
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 22px;
+  margin-top: 36px;
+  align-items: center;
+}
+
+#viewLanding .mini-live-chart-card {
+  min-height: 150px;
+  padding: 22px 24px;
+  border-radius: 14px;
+  border: 1px solid #e8ecf3;
+}
+
+#viewLanding .chart-badge-tag {
+  font-size: 9px;
+}
+
+#viewLanding .chart-time-val {
+  font-size: 22px;
+  margin: 10px 0;
+}
+
+#viewLanding .realtime-heading {
+  display: none;
+}
+
+#viewLanding .realtime-paragraph {
+  font-size: 11px;
+  line-height: 1.85;
+  color: #536174;
+}
+
+/* ------------------------------------------------------------------
+   7.  FAQ SECTION
+   ------------------------------------------------------------------ */
+#viewLanding .landing-faq {
+  margin-top: 34px;
+  padding: 26px 28px;
+  gap: 24px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(22, 39, 69, 0.06);
+  border: 1px solid #e8ecf3;
+}
+
+#viewLanding .landing-faq-kicker {
+  display: none;
+}
+
+#viewLanding .landing-faq-intro h2 {
+  font-size: 22px;
+  line-height: 1.18;
+}
+
+#viewLanding .landing-faq-intro p {
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+#viewLanding .landing-faq-item summary {
+  font-size: 10px;
+  padding: 12px 38px 12px 14px;
+  min-height: 44px;
+}
+
+#viewLanding .landing-faq-item summary::after {
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+}
+
+#viewLanding .landing-faq-item p {
+  font-size: 10px;
+  line-height: 1.65;
+  margin-left: 14px;
+  margin-right: 38px;
+}
+
+/* ------------------------------------------------------------------
+   8.  BOTTOM CTA
+   ------------------------------------------------------------------ */
+#viewLanding .bottom-cta-container {
+  margin-top: 34px;
+}
+
+#viewLanding .bottom-cta-box {
+  padding: 32px 40px;
+  border-radius: 16px;
+  background: linear-gradient(118deg, #081d4e, #0e2d6e 50%, #1940a0);
+  box-shadow: 0 14px 44px rgba(8, 25, 62, 0.22);
+  color: #fff;
+}
+
+#viewLanding .bottom-cta-heading {
+  font-size: 22px;
+  color: #fff;
+}
+
+#viewLanding .bottom-cta-subtext {
+  font-size: 10px;
+  color: #c4d3ec;
+}
+
+#viewLanding .bottom-cta-buttons {
+  gap: 10px;
+}
+
+#viewLanding .btn-bottom-primary,
+#viewLanding .btn-bottom-secondary {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font-size: 10px;
+}
+
+#viewLanding .btn-bottom-primary {
+  background: #fff;
+  color: #0b205f;
+}
+
+#viewLanding .btn-bottom-primary svg {
+  width: 14px;
+  height: 14px;
+}
+
+#viewLanding .btn-bottom-secondary {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #e0e8f7;
+}
+
+/* ------------------------------------------------------------------
+   9.  FOOTER adjustment
+   ------------------------------------------------------------------ */
+#viewLanding ~ .app-footer {
+  margin-top: 0;
+}
+
+/* ------------------------------------------------------------------
+   10. RESPONSIVE — ≤ 768px
+   ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+  #viewLanding .landing-page-wrapper {
+    padding: 16px 14px 36px;
+  }
+
+  #viewLanding .hero-rounded-banner {
+    padding: 30px 24px 26px;
+    border-radius: 16px;
+  }
+
+  #viewLanding .hero-banner-inner {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 20px;
+  }
+
+  #viewLanding .hero-banner-left {
+    max-width: none;
+  }
+
+  #viewLanding .hero-brand-headline {
+    font-size: 34px;
+  }
+
+  #viewLanding .hero-banner-description {
+    max-width: none;
+    font-size: 12px;
+  }
+
+  #viewLanding .landing-room-search {
+    max-width: none;
+  }
+
+  #viewLanding .hero-banner-right {
+    height: 270px;
+  }
+
+  #viewLanding .front-phone {
+    width: 190px;
+    height: 290px;
+  }
+
+  #viewLanding .two-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #viewLanding .advantages-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  #viewLanding .advantages-grid .main-title-col {
+    grid-column: 1 / -1;
+  }
+
+  #viewLanding .pulse-banner-section {
+    padding: 26px 22px;
+  }
+
+  #viewLanding .pulse-banner-inner {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  #viewLanding .floating-pulse-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #viewLanding .realtime-split-section {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  #viewLanding .realtime-heading {
+    display: block;
+    font-size: 20px;
+    margin-top: 0;
+  }
+
+  #viewLanding .landing-faq {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 22px 18px;
+  }
+
+  #viewLanding .bottom-cta-box {
+    padding: 28px 20px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   11. RESPONSIVE — ≤ 420px
+   ------------------------------------------------------------------ */
+@media (max-width: 420px) {
+  #viewLanding .hero-brand-headline {
+    font-size: 28px;
+  }
+
+  #viewLanding .hero-banner-description {
+    font-size: 11px;
+  }
+
+  #viewLanding .landing-room-search input {
+    font-size: 11px;
+  }
+
+  #viewLanding .landing-room-search button {
+    min-width: 64px;
+    height: 30px;
+    font-size: 11px;
+    padding: 0 12px;
+  }
+
+  #viewLanding .hero-banner-cta-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  #viewLanding .btn-hero-dark-pill,
+  #viewLanding .hero-sub-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #viewLanding .hero-banner-right {
+    height: 240px;
+  }
+
+  #viewLanding .front-phone {
+    width: 175px;
+    height: 265px;
+  }
+
+  #viewLanding .advantages-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #viewLanding .pulse-banner-title {
+    font-size: 18px;
+  }
+
+  #viewLanding .bottom-cta-heading {
+    font-size: 18px;
+  }
+
+  #viewLanding .section-large-title {
+    font-size: 19px;
+  }
+}

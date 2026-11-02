@@ -3,7 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$view = $_GET['view'] ?? 'rooms';
+$view = $_GET['view'] ?? $_GET['action'] ?? 'rooms';
+if ($view === 'index') {
+    $view = 'rooms';
+}
 $basePath = '';
 
 switch ($view) {
