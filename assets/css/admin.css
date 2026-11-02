@@ -760,7 +760,7 @@ div.dt-container div.dt-layout-cell.dt-layout-end {
     font-size: 12.5px !important;
     font-weight: 500 !important;
     padding: 6px 14px !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
     transition: all 0.2s ease !important;
     display: inline-flex;
     align-items: center;
@@ -980,6 +980,19 @@ div.dt-container .dt-paging .dt-paging-button.current:focus,
 .form-select:focus {
     border-color: var(--blue);
     box-shadow: 0 0 0 3px rgba(49, 95, 203, 0.1);
+}
+
+.table-custom-filters .ts-wrapper {
+    flex: 0 0 200px;
+    min-width: 200px;
+}
+
+.ts-wrapper.single .ts-control {
+    flex-wrap: nowrap;
+}
+
+.ts-dropdown {
+    z-index: 1070;
 }
 
 /* =========================================
@@ -1239,26 +1252,32 @@ textarea:focus-visible {
         transition-duration: 0.01ms !important;
     }
 }
+
 @media (max-width: 768px) {
     div.dt-container div.dt-layout-row {
         flex-direction: column !important;
         align-items: stretch !important;
     }
+
     div.dt-container div.dt-layout-cell.dt-layout-start,
     div.dt-container div.dt-layout-cell.dt-layout-end {
         width: 100% !important;
         justify-content: flex-start !important;
     }
+
     .table-custom-filters {
         width: 100% !important;
     }
+
     .table-custom-filters .form-select {
         flex: 1 1 100% !important;
         min-width: 100% !important;
     }
+
     .dt-container .dt-search {
         width: 100% !important;
     }
+
     .dt-container .dt-search input {
         flex: 1 !important;
         width: 100% !important;

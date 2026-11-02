@@ -2,11 +2,11 @@
 class HomeController {
     public function index() {
         $user = Auth::user();
-        require_once "app/Views/landing.php";
+        require_once "app/Views/admin/overview/index.php";
     }
 
     public function __construct(){
-        Auth::requireRole(['Admin']);
+        Auth::requireRole(['Admin', 'Mahasiswa']);
         $database = new Database();
         $bd = $database->getConnection();
     }

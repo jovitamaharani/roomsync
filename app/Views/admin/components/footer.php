@@ -16,12 +16,30 @@ foreach ($possibleJsPaths as $p) {
     }
 }
 ?>
+            <footer class="admin-footer">
+                <p class="mb-0">
+                    &copy; <?= date('Y') ?> <b>SIKARA</b> &middot; Jurusan Teknologi Informasi Politeknik Negeri Malang.
+                    <span class="d-none d-md-inline">Sistem Informasi Ketersediaan dan Alokasi Ruang.</span>
+                </p>
+            </footer>
+
         </main>
     </div>
+
+    <!-- Toast Notification -->
+    <div id="toastArea" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
+    <!-- MODAL TAMBAH DATA (SIMULASI) -->
+    <?php include __DIR__ . '/modal_data.php'; ?>
 
     <!-- JAVASCRIPT LIBRARY -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dropdown dengan pencarian (Tom Select, tanpa jQuery) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
 
     <!-- DataTables 2 JS & Extensions (https://datatables.net/) -->
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
@@ -33,7 +51,7 @@ foreach ($possibleJsPaths as $p) {
     <script src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- JAVASCRIPT ADMIN -->
+    <!-- JAVASCRIPT ADMIN (Dukungan rute maupun akses langsung) -->
     <script src="<?= $adminJsSrc ?>"></script>
     <script>
         // Fallback jika belum termuat
@@ -42,6 +60,15 @@ foreach ($possibleJsPaths as $p) {
             fallbackScript.src = '../admin.js';
             document.body.appendChild(fallbackScript);
         }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        <?php if (!empty($flash) && empty($flash['target'])): ?>
+            if (typeof showToast === 'function') {
+                showToast(<?= json_encode($flash['message']); ?>, <?= json_encode($flash['type'] === 'error'); ?>);
+            }
+        <?php endif; ?>
+    });
     </script>
 
 </body>

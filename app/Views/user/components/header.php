@@ -8,17 +8,17 @@ $basePath = $basePath ?? '../';
 
 // Resolve CSS path dynamically
 $possibleCssPaths = [
+    'assets/css/styles.css',
+    '../../assets/css/styles.css',
+    '../assets/css/styles.css',
     $basePath . 'styles.css',
     $basePath . 'assets/css/styles.css',
     'styles.css',
     '../styles.css',
     '../../styles.css',
-    'assets/css/styles.css',
-    '../assets/css/styles.css',
-    '../../assets/css/styles.css',
     '../../../assets/css/styles.css'
 ];
-$stylesCssHref = $basePath . 'styles.css';
+$stylesCssHref = 'assets/css/styles.css';
 foreach ($possibleCssPaths as $p) {
     if (file_exists($p)) {
         $stylesCssHref = $p;
@@ -27,15 +27,16 @@ foreach ($possibleCssPaths as $p) {
 }
 
 $possibleLandingCss = [
+    'assets/css/landing-reference.css',
+    '../../assets/css/landing-reference.css',
+    '../assets/css/landing-reference.css',
     $basePath . 'landing-reference.css',
     $basePath . 'assets/css/landing-reference.css',
     'landing-reference.css',
     '../landing-reference.css',
-    'assets/css/landing-reference.css',
-    '../assets/css/landing-reference.css',
     '../../assets/css/landing-reference.css'
 ];
-$landingCssHref = $basePath . 'landing-reference.css';
+$landingCssHref = 'assets/css/landing-reference.css';
 foreach ($possibleLandingCss as $p) {
     if (file_exists($p)) {
         $landingCssHref = $p;
