@@ -1,31 +1,37 @@
 <?php
 $basePath = $basePath ?? '../';
+$isRouter = isset($_GET['controller']) && $_GET['controller'] === 'user';
 
 // Resolve JS path dynamically
 $possibleJsPaths = [
+    'assets/js/app.js',
+    '../../assets/js/app.js',
+    '../assets/js/app.js',
     $basePath . 'app.js',
     $basePath . 'assets/js/app.js',
     'app.js',
     '../app.js',
     '../../app.js',
-    'assets/js/app.js',
-    '../assets/js/app.js',
-    '../../assets/js/app.js',
     '../../../assets/js/app.js'
 ];
-$appJsHref = $basePath . 'app.js';
+$appJsHref = 'assets/js/app.js';
 foreach ($possibleJsPaths as $p) {
     if (file_exists($p)) {
         $appJsHref = $p;
         break;
     }
 }
+
+$urlBeranda = $isRouter ? 'index.php?controller=user&view=landing' : $basePath . 'dashboard/index.php';
+$urlRooms   = $isRouter ? 'index.php?controller=user&view=rooms'   : $basePath . 'rooms/index.php';
+$urlLogin   = $isRouter ? 'index.php?controller=user&view=login'   : $basePath . 'login/index.php';
+$urlBubar   = $isRouter ? 'index.php?controller=user&view=laporan_bubar' : $basePath . 'laporan_bubar/index.php';
 ?>
   <footer class="app-footer">
     <div class="footer-container">
       <div class="footer-main">
         <section class="footer-brand" aria-label="Tentang SIKARA">
-          <a class="footer-brand-link" href="<?= $basePath ?>dashboard/index.php" aria-label="SIKARA - Halaman Utama">
+          <a class="footer-brand-link" href="<?= $urlBeranda ?>" aria-label="SIKARA - Halaman Utama">
             <span class="footer-brand-mark"><i class="bi bi-buildings-fill" aria-hidden="true"></i></span>
             <span><strong>SIKARA</strong><small>POLITEKNIK NEGERI MALANG</small></span>
           </a>
@@ -34,10 +40,10 @@ foreach ($possibleJsPaths as $p) {
         </section>
         <nav class="footer-links" aria-label="Tautan SIKARA">
           <h2>Tautan SIKARA</h2>
-          <a href="<?= $basePath ?>dashboard/index.php">Beranda</a>
-          <a href="<?= $basePath ?>rooms/index.php">Daftar ruangan</a>
-          <a href="<?= $basePath ?>login/index.php">Masuk</a>
-          <a href="<?= $basePath ?>laporan_bubar/index.php">Laporan pembubaran</a>
+          <a href="<?= $urlBeranda ?>">Beranda</a>
+          <a href="<?= $urlRooms ?>">Daftar ruangan</a>
+          <a href="<?= $urlLogin ?>">Masuk</a>
+          <a href="<?= $urlBubar ?>">Laporan pembubaran</a>
         </nav>
         <section class="footer-social">
           <h2>Ikuti POLINEMA</h2>
