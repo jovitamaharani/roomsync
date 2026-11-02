@@ -15,7 +15,7 @@
     <h1>landing page</h1>
 
     <nav>
-        <a href="index.php?controller=role&action=index">Role</a> |
+        <a href="index.php?controller=user&action=index">Role</a> |
         <a href="index.php?controller=class_year&action=index">Tahun Ajaran</a>
     </nav>
 
@@ -57,7 +57,7 @@
                         <a class="nav-link active" href="beranda.html">Beranda</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../RuangKelas/index.html">Ruang Kelas</a>
+                        <a class="nav-link" href="index.php?controller=room&action=index">Ruang Kelas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?controller=schedule&action=index">Jadwal Kelas</a>
