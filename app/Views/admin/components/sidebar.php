@@ -112,17 +112,29 @@ if (isset($_GET['controller'])) {
             Tampilan User
         </a>
 
-        <div class="admin-identity">
-            <span class="avatar">A</span>
-            <div class="admin-identity-info">
-                <span class="name" id="adminName">Administrator JTI</span>
-                <span class="role">Admin JTI</span>
+        <?php $user = Auth::user(); ?>
+        <?php if ($user): ?>
+            <div class="admin-identity">
+                <span class="avatar">
+                    <?= strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
+                </span>
+                <div class="admin-identity-info">
+                    <span id="adminName" class="name">
+                        <?= htmlspecialchars($user['name']); ?><br>
+                    </span>
+                    <span class="role">
+                        <?= htmlspecialchars(ucwords(str_replace('_', ' ', $user['role']))); ?>
+                    </span>
+                </div>
             </div>
-        </div>
 
-        <a href="index.php?controller=auth&action=logout" class="btn btn-sm btn-outline-light w-100 mt-3" id="logoutBtn">
-            <i class="bi bi-box-arrow-right me-1"></i> Keluar
-        </a>
+            <form action="index.php?controller=auth&action=logout" method="POST" class="mt-3">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
+                <button type="submit" class="btn btn-sm btn-outline-light w-100" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 
 </aside>

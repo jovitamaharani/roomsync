@@ -6,7 +6,7 @@ class HomeController {
     }
 
     public function __construct(){
-        Auth::requireRole(['Admin']);
+        Auth::requireRole(['Admin', 'Mahasiswa']);
         $database = new Database();
         $bd = $database->getConnection();
     }
