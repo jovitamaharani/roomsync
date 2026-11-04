@@ -2,7 +2,7 @@
 require_once __DIR__ . "/../../config/database.php";
 require_once __DIR__ . "/../Models/User.php";
 
-class UserController
+class UsersController
 {
     private $userModel;
 
@@ -27,7 +27,7 @@ class UserController
     {
         unset($data['password'], $data['password_confirm']);
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
-        $_SESSION['old']   = ['modal' => $modal, 'data' => $data];
+        $_SESSION['old'] = ['modal' => $modal, 'data' => $data];
         header("Location: index.php?controller=user&action=index");
         exit;
     }
@@ -35,7 +35,8 @@ class UserController
     private function isUuid($id)
     {
         return is_string($id) && preg_match(
-            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $id
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+            $id
         ) === 1;
     }
 
@@ -48,11 +49,11 @@ class UserController
     {
         $classId = trim($_POST['student_class_id'] ?? '');
         return [
-            'name'             => trim($_POST['name'] ?? ''),
-            'email'            => strtolower(trim($_POST['email'] ?? '')),
-            'role_id'          => $_POST['role_id'] ?? '',
+            'name' => trim($_POST['name'] ?? ''),
+            'email' => strtolower(trim($_POST['email'] ?? '')),
+            'role_id' => $_POST['role_id'] ?? '',
             'student_class_id' => $classId === '' ? null : $classId,
-            'password'         => $_POST['password'] ?? '',          // jangan di-trim
+            'password' => $_POST['password'] ?? '',          // jangan di-trim
             'password_confirm' => $_POST['password_confirm'] ?? '',
         ];
     }
@@ -62,8 +63,10 @@ class UserController
         if ($d['name'] === '' || mb_strlen($d['name']) > 100) {
             return "Nama wajib diisi (maksimal 100 karakter).";
         }
-        if ($d['email'] === '' || mb_strlen($d['email']) > 150
-            || !filter_var($d['email'], FILTER_VALIDATE_EMAIL)) {
+        if (
+            $d['email'] === '' || mb_strlen($d['email']) > 150
+            || !filter_var($d['email'], FILTER_VALIDATE_EMAIL)
+        ) {
             return "Format email tidak valid.";
         }
         if (!$this->isUuid($d['role_id'])) {
@@ -103,9 +106,9 @@ class UserController
 
     public function index()
     {
-        $users   = $this->userModel->getAll();
+        $users = $this->userModel->getAll();
         $options = $this->userModel->getFormOptions();
-        $canAdd  = !empty($options['roles']);
+        $canAdd = !empty($options['roles']);
         require_once __DIR__ . "/../Views/user/user/index.php";
     }
 
@@ -143,7 +146,7 @@ class UserController
         }
 
         $data = $this->collect();
-        $old  = ['id' => $id] + $data;
+        $old = ['id' => $id] + $data;
 
         if ($error = $this->validate($data, false)) {
             $this->fail($error, $old, 'edit');

@@ -28,7 +28,7 @@ if (!function_exists('adminNavUrl')) {
     }
 }
 
-$userHomeUrl = 'index.php?controller=user';
+$userHomeUrl = 'index.php?controller=user&view=landing';
 ?>
 
 <aside class="sidebar" id="adminSidebar">

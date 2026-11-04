@@ -3,6 +3,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+date_default_timezone_set('Asia/Jakarta');
+
+require_once __DIR__ . '/../../../Config/Database.php';
+require_once __DIR__ . '/../../Models/Room.php';
+
+$database = new Database();
+$db = $database->getConnection();
+$roomModel = new Room($db);
+
 $view = $_GET['view'] ?? $_GET['action'] ?? 'rooms';
 if ($view === 'index') {
     $view = 'rooms';
@@ -38,10 +47,17 @@ switch ($view) {
         break;
     case 'landing':
     case 'beranda':
+        $stats = $roomModel->getStats();
+        $previewRooms = $roomModel->getPreview(3);
         require_once __DIR__ . '/dashboard/index.php';
         break;
     case 'rooms':
     case 'dashboard':
+        $keyword = trim($_GET['keyword'] ?? '');
+        $rooms = !empty($keyword) ? $roomModel->search($keyword) : $roomModel->getAll();
+        $stats = $roomModel->getStats();
+        require_once __DIR__ . '/rooms/index.php';
+        break;
     default:
         require_once __DIR__ . '/rooms/index.php';
         break;

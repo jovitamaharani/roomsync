@@ -63,7 +63,14 @@ class AuthController
         }
 
         Auth::login($user);
-        $this->redirect("index.php?controller=home&action=index");
+
+        $currentUser = Auth::user();
+
+        if (isset($currentUser['role']) && $currentUser['role'] === 'Mahasiswa') {
+            $this->redirect("index.php?controller=user&action=landing");
+        } else {
+            $this->redirect("index.php?controller=home&action=index");
+        }
     }
 
     public function logout()

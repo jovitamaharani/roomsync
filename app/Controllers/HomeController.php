@@ -1,14 +1,21 @@
 <?php
-class HomeController {
-    public function index() {
+class HomeController
+{
+    public function index()
+    {
         $user = Auth::user();
-        require_once "app/Views/admin/overview/index.php";
+        if ($user['role'] == 'Mahasiswa') {
+            require_once "app/Views/user/dashboard/index.php";
+        } else {
+            require_once "app/Views/admin/overview/index.php";
+        }
     }
 
-    public function __construct(){
+    public function __construct()
+    {
         Auth::requireRole(['Admin', 'Mahasiswa']);
         $database = new Database();
-        $bd = $database->getConnection();
+        $db = $database->getConnection();
     }
-    
+
 }
