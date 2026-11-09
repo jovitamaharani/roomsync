@@ -3,8 +3,8 @@ $activeAdminPage = 'classes';
 $pageTitle = 'Daftar Kelas - Admin JTI';
 $pageHeading = 'Daftar Kelas';
 
-include __DIR__ . '/../components/header.php';
-include __DIR__ . '/../components/sidebar.php';
+include __DIR__ . '../components/header.php';
+include __DIR__ . '../components/sidebar.php';
 ?>
 
 <!-- BACKDROP SIDEBAR MOBILE -->
@@ -14,7 +14,7 @@ include __DIR__ . '/../components/sidebar.php';
 <main class="main-area">
 
     <!-- NAVBAR -->
-    <?php include __DIR__ . '/../components/navbar.php'; ?>
+    <?php include __DIR__ . '../components/header.php'; ?>
 
     <!-- TOAST NOTIFICATION -->
     <div id="toastArea" class="toast-container position-fixed top-0 end-0 p-3"></div>
@@ -162,4 +162,4 @@ include __DIR__ . '/../components/sidebar.php';
     </div>
 
     <!-- FOOTER & SCRIPTS -->
-    <?php include __DIR__ . '/../components/footer.php'; ?>
+    <?php include __DIR__ . '../components/footer.php'; ?>

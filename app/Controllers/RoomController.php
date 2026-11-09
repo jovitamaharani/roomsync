@@ -20,7 +20,7 @@ class RoomController{
     }
     private function backToForm($action, $message, $id = null){
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
-        $url = "index.php?controller=room&action=" . $action;
+        $url = "index.php?controller=rooms&action=" . $action;
         if ($id) {
             $url .= "&id=" . urlencode($id);
         }
@@ -83,7 +83,7 @@ class RoomController{
 
     public function index() {
         $rooms = $this->roomModel->getAll();
-        require_once __DIR__ . "/../Views/user/room/index.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
     public function create() {
@@ -91,35 +91,33 @@ class RoomController{
         unset($_SESSION['old']);
 
         $title = "Tambah Ruangan";
-        $action = "index.php?controller=room&action=store";
+        $action = "index.php?controller=rooms&action=store";
         $submitLabel = "Simpan";
         $formId = null;
-        require_once __DIR__ . "/../Views/user/room/create.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function store() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect();
-        }
-
-        $data = $this->collect();
-        $_SESSION['old'] = $data;
-
-        if ($error = $this->validate($data)) {
-            $this->backToForm('create', $error);
-        }
-
-        try {
-            $this->roomModel->create($data);
-            unset($_SESSION['old']);
-            $this->redirect('success', 'berhasil ditambahkan');
-        } catch (PDOException $e) {
-            if ($message = $this->dbErrorMessage($e)) {
-                $this->backToForm('create', $message);
-            }
-            throw $e;
-        }
+    public function store()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect();
     }
+
+    $data = $this->collect();
+    if ($error = $this->validate($data)) {
+        $this->fail($error, $data, 'add');
+    }
+
+    try {
+        $this->roomModel->create($data);
+        $this->redirect('success', 'Ruangan berhasil ditambahkan.');
+    } catch (PDOException $e) {
+        if ($message = $this->dbErrorMessage($e)) {
+            $this->fail($message, $data, 'add');
+        }
+        throw $e;
+    }
+}
 
     public function edit($id)
     {
@@ -132,59 +130,71 @@ class RoomController{
         unset($_SESSION['old']);
 
         $title = "Edit Ruangan";
-        $action = "index.php?controller=room&action=update";
+        $action = "index.php?controller=rooms&action=update";
         $submitLabel = "Update";
         $formId = $room['id'];
-        require_once __DIR__ . "/../Views/user/room/edit.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function update()
+ public function update()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect();
+    }
+
+    $id = $_POST['id'] ?? '';
+    if (!$this->isUuid($id)) {
+        $this->redirect('error', 'ID tidak valid.');
+    }
+
+    $data = $this->collect();
+    $old  = ['id' => $id] + $data;
+
+    if ($error = $this->validate($data)) {
+        $this->fail($error, $old, 'edit');
+    }
+
+    try {
+        if (!$this->roomModel->update($id, $data)) {
+            $this->redirect('error', 'Data tidak ditemukan.');
+        }
+        $this->redirect('success', 'Ruangan berhasil diperbarui.');
+    } catch (PDOException $e) {
+        if ($message = $this->dbErrorMessage($e)) {
+            $this->fail($message, $old, 'edit');
+        }
+        throw $e;
+    }
+}
+
+public function delete($id = null)
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('error', 'Permintaan tidak valid.');
+    }
+
+    $id = $_POST['id'] ?? $id;
+    if (!$this->isUuid($id)) {
+        $this->redirect('error', 'ID tidak valid.');
+    }
+
+    try {
+        if (!$this->roomModel->delete($id)) {
+            $this->redirect('error', 'Data tidak ditemukan.');
+        }
+        $this->redirect('success', 'Ruangan berhasil dihapus.');
+    } catch (PDOException $e) {
+        if ($e->getCode() === '23503') {
+            $this->redirect('error', 'Ruangan sudah dipakai oleh jadwal atau peminjaman dan tidak bisa dihapus. Nonaktifkan lewat menu Edit.');
+        }
+        throw $e;
+    }
+}
+    private function fail($message, array $data, $modal)
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect();
-        }
-
-        $id = $_POST['id'] ?? '';
-        if (!$this->isUuid($id)) {
-            $this->redirect('error', 'ID tidak valid.');
-        }
-
-        $data = $this->collect();
-        $_SESSION['old'] = $data;
-
-        if ($error = $this->validate($data)) {
-            $this->backToForm('edit', $error, $id);
-        }
-
-        try {
-            if (!$this->roomModel->update($id, $data)) {
-                unset($_SESSION['old']);
-                $this->redirect('error', 'data tidak ditemukan');
-            }
-            unset($_SESSION['old']);
-            $this->redirect('success', 'berhasil diperbarui');
-        } catch (PDOException $e) {
-            if ($message = $this->dbErrorMessage($e)) {
-                $this->backToForm('edit', $message, $id);
-            }
-            throw $e;
-        }
-    }
-
-    public function delete($id) {
-        if (!$this->isUuid($id)) {
-            $this->redirect('error', 'ID tidak valid.');
-        }
-        try {
-            if (!$this->roomModel->delete($id)) {
-                $this->redirect('error', 'data tidak ditemukan');
-            }
-            $this->redirect('success', 'berhasil dihapus.');
-        } catch (PDOException $e) {
-            if ($e->getCode() === '23503') {
-                $this->redirect('error', 'Ruangan sudah dipakai oleh jadwal atau peminjaman dan tidak bisa dihapus');
-            }
-            throw $e;
-        }
+        $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
+        $_SESSION['old']   = ['modal' => $modal, 'data' => $data];
+        header("Location: index.php?controller=room&action=index");
+        exit;
     }
 }

@@ -3,8 +3,8 @@ $activeAdminPage = 'courses';
 $pageTitle = 'Daftar Mata Kuliah - Admin JTI';
 $pageHeading = 'Daftar Mata Kuliah';
 
-include __DIR__ . '/../components/header.php';
-include __DIR__ . '/../components/sidebar.php';
+include __DIR__ . '../components/header.php';
+include __DIR__ . '../components/sidebar.php';
 ?>
 
 <!-- BACKDROP SIDEBAR MOBILE -->

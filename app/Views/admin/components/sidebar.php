@@ -12,8 +12,7 @@ if (!function_exists('adminNavUrl')) {
             'academic_year' => 'academic_year',
             'years' => 'academic_year',
             'overview' => 'home',
-            'rooms' => 'rooms',
-            'room' => 'rooms'
+            'room' => 'room'
         ];
         $ctrl = $map[$module] ?? $module;
 
@@ -74,7 +73,7 @@ $userHomeUrl = 'index.php?controller=user&view=landing';
             class="side-link <?= $activeAdminPage === 'years' ? 'active' : '' ?>">
             <i class="bi bi-calendar-range"></i> Academic Year
         </a>
-        <a href="<?= adminNavUrl('rooms') ?>" class="side-link <?= $activeAdminPage === 'rooms' ? 'active' : '' ?>">
+        <a href="<?= adminNavUrl('room') ?>" class="side-link <?= $activeAdminPage === 'room' ? 'active' : '' ?>">
             <i class="bi bi-door-open"></i> Daftar Ruang Kelas
         </a>
         <a href="<?= adminNavUrl('courses') ?>" class="side-link <?= $activeAdminPage === 'courses' ? 'active' : '' ?>">
