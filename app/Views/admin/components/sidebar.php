@@ -76,7 +76,7 @@ $userHomeUrl = 'index.php?controller=user&view=landing';
         <a href="<?= adminNavUrl('room') ?>" class="side-link <?= $activeAdminPage === 'room' ? 'active' : '' ?>">
             <i class="bi bi-door-open"></i> Daftar Ruang Kelas
         </a>
-        <a href="<?= adminNavUrl('courses') ?>" class="side-link <?= $activeAdminPage === 'courses' ? 'active' : '' ?>">
+        <a href="<?= adminNavUrl('course') ?>" class="side-link <?= $activeAdminPage === 'course' ? 'active' : '' ?>">
             <i class="bi bi-book"></i> Daftar Mata Kuliah
         </a>
         <a href="<?= adminNavUrl('users') ?>" class="side-link <?= $activeAdminPage === 'users' ? 'active' : '' ?>">
