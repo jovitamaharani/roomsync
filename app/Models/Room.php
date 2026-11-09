@@ -111,6 +111,7 @@ class Room
             ':tables' => (int) $d['tables'],
             ':facilities' => $d['facilities'] !== '' ? $d['facilities'] : null,
             ':is_active' => $d['is_active'] ? 'true' : 'false',
+            ':image_path' => $d['image_path']?? null,
         ];
     }
 
@@ -118,9 +119,9 @@ class Room
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO " . $this->table . "
-                (name, building, floor, capacity, chairs, tables, facilities, is_active)
+                (name, building, floor, capacity, chairs, tables, facilities, is_active, image_path)
              VALUES
-                (:name, :building, :floor, :capacity, :chairs, :tables, :facilities, :is_active)
+                (:name, :building, :floor, :capacity, :chairs, :tables, :facilities, :is_active, :image_path)
              RETURNING id"
         );
         $stmt->execute($this->params($d));
@@ -133,7 +134,7 @@ class Room
             "UPDATE " . $this->table . "
              SET name = :name, building = :building, floor = :floor,
                  capacity = :capacity, chairs = :chairs, tables = :tables,
-                 facilities = :facilities, is_active = :is_active
+                 facilities = :facilities, is_active = :is_active, image_path = :image_path
              WHERE id = :id"
         );
         $stmt->execute($this->params($d) + [':id' => $id]);

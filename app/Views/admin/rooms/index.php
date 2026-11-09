@@ -13,10 +13,11 @@ unset($_SESSION['old']);
 $h = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES);
 
 // Isi form dipakai bersama oleh modal tambah dan modal edit
-$renderFields = function () { ?>
+$renderFields = function (bool $forEdit) { ?>
     <div class="mb-3">
         <label class="form-label">Nama Ruang <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" name="name" placeholder="Contoh: RT 01 atau Lab RPL 1" maxlength="100" required>
+        <input type="text" class="form-control" name="name" placeholder="Contoh: RT 01 atau Lab RPL 1" maxlength="100"
+            required>
     </div>
     <div class="mb-3">
         <label class="form-label">Gedung <span class="text-danger">*</span></label>
@@ -44,13 +45,31 @@ $renderFields = function () { ?>
     </div>
     <div class="mb-3">
         <label class="form-label">Fasilitas</label>
-        <textarea class="form-control" name="facilities" rows="2" placeholder="Contoh: Proyektor, AC, Whiteboard"></textarea>
+        <textarea class="form-control" name="facilities" rows="2"
+            placeholder="Contoh: Proyektor, AC, Whiteboard"></textarea>
     </div>
     <div class="mb-3">
         <label class="form-check-label">
             <input class="form-check-input me-2" type="checkbox" name="is_active" checked>Ruangan aktif
         </label>
         <div class="form-text">Ruangan nonaktif tidak bisa dipilih untuk jadwal baru.</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Foto Ruangan</label>
+        <?php if ($forEdit): ?>
+            <div class="mb-2 d-none" data-image-box>
+                <img alt="Foto saat ini" class="rounded border" style="max-width: 100%; max-height: 160px; object-fit: cover;">
+                <div class="form-check mt-2">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="remove_image">Hapus foto ini
+                    </label>
+                </div>
+            </div>
+        <?php endif; ?>
+        <input type="file" class="form-control" name="image" accept="image/jpeg,image/png,image/webp">
+        <div class="form-text">
+            JPG, PNG, atau WebP, maksimal 2 MB.<?= $forEdit ? ' Pilih file baru untuk mengganti foto.' : ''; ?>
+        </div>
     </div>
 <?php };
 
@@ -80,7 +99,8 @@ include __DIR__ . '/../components/sidebar.php';
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahRoom">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalTambahRoom">
                             <i class="bi bi-plus-lg me-1"></i>
                             Tambah Ruang
                         </button>
@@ -91,6 +111,7 @@ include __DIR__ . '/../components/sidebar.php';
                     <table id="roomsTable" class="display table table-striped table-hover align-middle w-100">
                         <thead>
                             <tr>
+                                <th>Foto</th>
                                 <th>Nama Ruang</th>
                                 <th>Gedung</th>
                                 <th>Lantai</th>
@@ -101,22 +122,36 @@ include __DIR__ . '/../components/sidebar.php';
                                 <th class="text-center" style="width: 170px;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>                           
+                        <tbody>
                             <?php foreach ($rooms as $item):
                                 $payload = [
-                                    'id'         => $item['id'],
-                                    'name'       => $item['name'],
-                                    'building'   => $item['building'],
-                                    'floor'      => (int) $item['floor'],
-                                    'capacity'   => (int) $item['capacity'],
-                                    'chairs'     => (int) $item['chairs'],
-                                    'tables'     => (int) $item['tables'],
+                                    'id' => $item['id'],
+                                    'name' => $item['name'],
+                                    'building' => $item['building'],
+                                    'floor' => (int) $item['floor'],
+                                    'capacity' => (int) $item['capacity'],
+                                    'chairs' => (int) $item['chairs'],
+                                    'tables' => (int) $item['tables'],
                                     'facilities' => ($item['facilities'] ?? '') === '-' ? '' : ($item['facilities'] ?? ''),
-                                    'is_active'  => (bool) $item['is_active'],
+                                    'is_active' => (bool) $item['is_active'],
+                                    'image_path' => $item['image_path'] ?? null,
                                 ];
                                 $facilities = trim((string) ($item['facilities'] ?? ''));
-                            ?>
+                                ?>
                                 <tr>
+                                    <td>
+                                        <?php if (!empty($item['image_path'])): ?>
+                                            <a href="<?= $h($item['image_path']); ?>" target="_blank" rel="noopener">
+                                                <img src="<?= $h($item['image_path']); ?>" alt="Foto <?= $h($item['name']); ?>"
+                                                    class="rounded border" style="width: 72px; height: 54px; object-fit: cover;"
+                                                    loading="lazy">
+                                            </a>
+                                        <?php else: ?>
+                                            <span
+                                                class="d-inline-flex align-items-center justify-content-center rounded border bg-light text-muted"
+                                                style="width: 72px; height: 54px;"><i class="bi bi-image"></i></span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><span class="fw-semibold text-dark"><?= $h($item['name']); ?></span></td>
                                     <td><?= $h($item['building']); ?></td>
                                     <td><?= (int) $item['floor']; ?></td>
@@ -124,7 +159,7 @@ include __DIR__ . '/../components/sidebar.php';
                                     <td><?= (int) $item['chairs']; ?> / <?= (int) $item['tables']; ?></td>
                                     <td>
                                         <span class="d-inline-block text-truncate" style="max-width: 220px;"
-                                              title="<?= $h($facilities); ?>">
+                                            title="<?= $h($facilities); ?>">
                                             <?= $facilities !== '' ? $h($facilities) : '-'; ?>
                                         </span>
                                     </td>
@@ -142,9 +177,8 @@ include __DIR__ . '/../components/sidebar.php';
                                             <i class="bi bi-pencil-square me-1"></i>Edit
                                         </button>
 
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            data-bs-toggle="modal" data-bs-target="#modalHapusRoom"
-                                            data-id="<?= $h($item['id']); ?>"
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                            data-bs-target="#modalHapusRoom" data-id="<?= $h($item['id']); ?>"
                                             data-label="<?= $h($item['building'] . ' - ' . $item['name']); ?>">
                                             <i class="bi bi-trash3 me-1"></i>Hapus
                                         </button>
@@ -161,42 +195,45 @@ include __DIR__ . '/../components/sidebar.php';
     </section>
 
     <!-- MODAL TAMBAH RUANG -->
-    <div class="modal fade" id="modalTambahRoom" tabindex="-1" aria-labelledby="modalTambahRoomLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <form class="modal-content" action="index.php?controller=room&action=store" method="POST">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahRoomLabel">Tambah Ruang Kelas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-                <?php $renderFields(); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-        </form>
+    <div class="modal fade" id="modalTambahRoom" tabindex="-1" aria-labelledby="modalTambahRoomLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <form class="modal-content" action="index.php?controller=room&action=store" method="POST"
+                enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahRoomLabel">Tambah Ruang Kelas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <?php $renderFields(true); ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     <!-- MODAL EDIT RUANG -->
-<div class="modal fade" id="modalEditRoom" tabindex="-1" aria-labelledby="modalEditRoomLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <form class="modal-content" action="index.php?controller=room&action=update" method="POST">
-            <input type="hidden" name="id">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditRoomLabel">Edit Ruang Kelas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-                <?php $renderFields(); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-            </div>
-        </form>
-    </div>
+    <div class="modal fade" id="modalEditRoom" tabindex="-1" aria-labelledby="modalEditRoomLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <form class="modal-content" action="index.php?controller=room&action=update" method="POST"
+                enctype="multipart/form-data">
+                <input type="hidden" name="id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditRoomLabel">Edit Ruang Kelas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <?php $renderFields(true); ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL HAPUS RUANG -->
@@ -210,8 +247,10 @@ include __DIR__ . '/../components/sidebar.php';
                 <form action="index.php?controller=room&action=delete" method="POST">
                     <input type="hidden" id="hapusRoomId" name="id">
                     <div class="modal-body">
-                        <p class="mb-2">Apakah Anda yakin ingin menghapus ruang <strong id="hapusRoomName">ini</strong>?</p>
-                        <p class="text-danger small mb-0"><i class="bi bi-exclamation-triangle me-1"></i>Tindakan ini tidak dapat dibatalkan.</p>
+                        <p class="mb-2">Apakah Anda yakin ingin menghapus ruang <strong id="hapusRoomName">ini</strong>?
+                        </p>
+                        <p class="text-danger small mb-0"><i class="bi bi-exclamation-triangle me-1"></i>Tindakan ini
+                            tidak dapat dibatalkan.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -239,6 +278,19 @@ include __DIR__ . '/../components/sidebar.php';
             });
         }
 
+        function setRoomImage(form, path) {
+            const box = form.querySelector('[data-image-box]');
+            if (!box) return;                                   // modal tambah tidak punya kotak ini
+            const img = box.querySelector('img');
+            if (path) {
+                img.src = path;
+                box.classList.remove('d-none');
+            } else {
+                img.removeAttribute('src');
+                box.classList.add('d-none');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             function initTable() {
                 if (typeof DataTable === 'undefined') {
@@ -249,15 +301,15 @@ include __DIR__ . '/../components/sidebar.php';
                     new DataTable('#roomsTable', {
                         pageLength: 10,
                         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                        order: [[1, 'asc'], [2, 'asc'], [0, 'asc']],   // gedung, lantai, nama
-                        columnDefs: [{ orderable: false, targets: -1 }],
+                        order: [[2, 'asc'], [3, 'asc'], [1, 'asc']],   // gedung, lantai, nama
+                        columnDefs: [{ orderable: false, searchable: false, targets: [0, -1] }],
                         layout: {
                             topStart: {
                                 buttons: [
-                                    { extend: "copy",  text: '<i class="bi bi-clipboard me-1"></i>Copy',           exportOptions: { columns: ':not(:last-child)' } },
-                                    { extend: "excel", text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel', exportOptions: { columns: ':not(:last-child)' } },
-                                    { extend: "pdf",   text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',     exportOptions: { columns: ':not(:last-child)' } },
-                                    { extend: "print", text: '<i class="bi bi-printer me-1"></i>Print',            exportOptions: { columns: ':not(:last-child)' } }
+                                    { extend: "copy", text: '<i class="bi bi-clipboard me-1"></i>Copy', exportOptions: { columns: ':not(:first-child) :not(:last-child)' } },
+                                    { extend: "excel", text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel', exportOptions: { columns: ':not(:first-child) :not(:last-child)' } },
+                                    { extend: "pdf", text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF', exportOptions: { columns: ':not(:first-child) :not(:last-child)' } },
+                                    { extend: "print", text: '<i class="bi bi-printer me-1"></i>Print', exportOptions: { columns: ':not(:first-child) :not(:last-child)' } }
                                 ]
                             },
                             topEnd: "search",
@@ -280,8 +332,8 @@ include __DIR__ . '/../components/sidebar.php';
             initTable();
 
             const modalTambahEl = document.getElementById('modalTambahRoom');
-            const modalEditEl   = document.getElementById('modalEditRoom');
-            const modalHapusEl  = document.getElementById('modalHapusRoom');
+            const modalEditEl = document.getElementById('modalEditRoom');
+            const modalHapusEl = document.getElementById('modalHapusRoom');
 
             // Modal tambah: kembalikan ke nilai awal setelah ditutup
             modalTambahEl.addEventListener('hidden.bs.modal', function () {
@@ -292,7 +344,11 @@ include __DIR__ . '/../components/sidebar.php';
             modalEditEl.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 if (button && button.dataset.room) {
-                    fillForm(modalEditEl.querySelector('form'), JSON.parse(button.dataset.room));
+                    const form = modalEditEl.querySelector('form');
+                    const data = JSON.parse(button.dataset.room);
+                    form.reset();                      // kosongkan pilihan file dan centang "hapus foto" dari pembukaan sebelumnya
+                    fillForm(form, data);
+                    setRoomImage(form, data.image_path);
                 }
             });
 
@@ -314,6 +370,9 @@ include __DIR__ . '/../components/sidebar.php';
                 }
                 const el = oldState.modal === 'edit' ? modalEditEl : modalTambahEl;
                 fillForm(el.querySelector('form'), oldState.data);
+                const form = el.querySelector('form');
+                fillForm(form, oldState.data);
+                setRoomImage(form, oldState.data.image_path);
                 bootstrap.Modal.getOrCreateInstance(el).show();
             }
             if (oldState) reopenModal();
