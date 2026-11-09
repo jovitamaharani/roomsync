@@ -72,10 +72,10 @@ require_once __DIR__ . '/../components/navbar.php';
           </div>
           <div class="schedule-pagination-wrap" id="schedulePagination">
             <nav class="room-pagination">
-              <button type="button" class="pagination-button" disabled>Ã¢â‚¬Â¹ Sebelumnya</button>
+              <button type="button" class="pagination-button" disabled>Sebelumnya</button>
               <button type="button" class="pagination-button active">1</button>
               <button type="button" class="pagination-button">2</button>
-              <button type="button" class="pagination-button">Berikutnya Ã¢â‚¬Âº</button>
+              <button type="button" class="pagination-button">Berikutnya</button>
             </nav>
           </div>
         </div>
