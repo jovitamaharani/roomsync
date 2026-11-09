@@ -4421,6 +4421,67 @@ textarea:focus {
   vertical-align: middle !important;
 }
 
+.schedule-status-badge.is-belum {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.schedule-status-badge.is-sedang {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+.schedule-status-badge.is-selesai {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.schedule-status-badge.is-ubah {
+  background: #FFFBEB;
+  color: #B45309;
+}
+
+.schedule-dt-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.schedule-dt-footer .dataTables_info,
+.schedule-dt-footer .dataTables_paginate {
+  padding: 0 !important;
+}
+
+.schedule-dt-footer .dataTables_info {
+  font-size: 13px;
+  color: #64748B;
+}
+
+.schedule-dt-footer .pagination {
+  margin: 0;
+  color: black;
+}   
+
+.booking-dt-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+
+/* Merapikan jarak pagination DataTables */
+.booking-dt-footer .dataTables_paginate {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* Riwayat & Log Okupansi Column Widths & Anti-wrapping */
 .log-table-card .data-table th:nth-child(1),
 .log-table-card .data-table td:nth-child(1) {
