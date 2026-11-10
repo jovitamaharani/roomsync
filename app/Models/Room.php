@@ -4,17 +4,56 @@ class Room
     private $conn;
     private $table = "rooms";
     private $viewStatus = "vw_room_status";
+    private $todaySchedules;
 
     public function __construct($db)
     {
         $this->conn = $db;
+    $now   = "(NOW() AT TIME ZONE 'Asia/Jakarta')";
+    $today = "{$now}::date";
+    $time  = "{$now}::time";
+
+    $this->todaySchedules = "
+        SELECT s.id AS schedule_id, s.room_id,
+               c.name AS course, c.kode_mk,
+               l.name AS lecturer, sc.name AS class_name,
+               s.start_time, s.end_time
+        FROM schedules s
+        JOIN courses c        ON c.id  = s.course_id
+        JOIN lecturers l      ON l.id  = s.lecturer_id
+        JOIN student_class sc ON sc.id = s.student_class_id
+        WHERE s.day_of_week = EXTRACT(ISODOW FROM {$now})::int
+          AND NOT EXISTS (
+              SELECT 1 FROM schedule_exceptions e
+              WHERE e.schedule_id = s.id AND e.date = {$today}
+          )
+    ";
+
+    $this->viewStatus = "(
+        SELECT r.*,
+          CASE
+            WHEN EXISTS (
+                SELECT 1 FROM ({$this->todaySchedules}) ts
+                WHERE ts.room_id = r.id
+                  AND {$time} BETWEEN ts.start_time AND ts.end_time
+            ) OR EXISTS (
+                SELECT 1 FROM bookings b
+                WHERE b.room_id = r.id
+                  AND b.date = {$today}
+                  AND {$time} BETWEEN b.start_time AND b.end_time
+                  AND b.status::text = 'approved'  -- sesuaikan dengan enum status booking
+            )
+            THEN 'terpakai' ELSE 'kosong'
+          END AS status
+        FROM rooms r
+    )";
     }
 
     public function getAll()
     {
         $query = "
             SELECT * 
-            FROM {$this->viewStatus} 
+            FROM {$this->viewStatus} AS rs
             WHERE is_active = true 
             ORDER BY building, floor, name
         ";
@@ -27,7 +66,7 @@ class Room
     {
         $query = "
             SELECT * 
-            FROM {$this->viewStatus}
+            FROM {$this->viewStatus} AS rs
             WHERE is_active = true 
               AND (name ILIKE :kw OR building ILIKE :kw OR facilities ILIKE :kw)
             ORDER BY building, floor, name
@@ -76,9 +115,9 @@ class Room
                     ELSE ''
                 END AS time
             FROM {$this->viewStatus} r
-            LEFT JOIN vw_today_schedules ts 
+            LEFT JOIN ({$this->todaySchedules}) ts 
                    ON ts.room_id = r.id 
-                  AND CURRENT_TIME BETWEEN ts.start_time AND ts.end_time
+                  AND (NOW() AT TIME ZONE 'Asia/Jakarta')::time BETWEEN ts.start_time AND ts.end_time
             WHERE r.is_active = true
             ORDER BY 
                 CASE WHEN r.status = 'terpakai' THEN 1 ELSE 2 END,
