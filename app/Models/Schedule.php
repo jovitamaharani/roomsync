@@ -49,48 +49,6 @@ class Schedule
                 JOIN rooms rm ON rm.id = s.room_id";
     }
 
-    // Jadwal hari ini untuk tampilan user, lengkap dengan status waktu.
-    public function getToday()
-    {
-        $now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
-        $date = $now->format('Y-m-d');
-        $time = $now->format('H:i:s');
-
-        $stmt = $this->conn->prepare(
-            "SELECT s.id, s.start_time, s.end_time,
-                co.kode_mk, co.name AS course,
-                l.name  AS lecturer,
-                sc.name AS classroom,
-                rm.name AS room, rm.building
-         FROM schedules s
-         JOIN courses co        ON co.id = s.course_id
-         JOIN lecturers l       ON l.id  = s.lecturer_id
-         JOIN student_class sc  ON sc.id = s.student_class_id
-         JOIN academic_years ay ON ay.id = sc.academic_year_id
-         JOIN rooms rm          ON rm.id = s.room_id
-         WHERE ay.is_active
-           AND s.day_of_week = :dow
-           AND NOT EXISTS (
-               SELECT 1 FROM schedule_exceptions e
-               WHERE e.schedule_id = s.id
-                 AND e.date = :date
-                 AND e.type::text IN ('cancelled', 'moved')
-           )
-         ORDER BY s.start_time, rm.name"
-        );
-        $stmt->bindValue(':dow', (int) $now->format('N'), PDO::PARAM_INT);
-        $stmt->bindValue(':date', $date);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($rows as &$r) {
-            $r['status'] = $time < $r['start_time'] ? 'Belum'
-                : ($time < $r['end_time'] ? 'Sedang' : 'Selesai');
-        }
-        unset($r);
-        return $rows;
-    }
-
     public function getAll()
     {
         return $this->fetchAll(

@@ -7,7 +7,6 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../../Config/Database.php';
 require_once __DIR__ . '/../../Models/Room.php';
-require_once __DIR__ . '/../../Models/Schedule.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -22,7 +21,6 @@ $basePath = '';
 switch ($view) {
     case 'schedule':
     case 'jadwal':
-        $todaySchedules = (new Schedule($db))->getToday();
         require_once __DIR__ . '/schedule/index.php';
         break;
     case 'riwayat':
