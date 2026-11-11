@@ -191,7 +191,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                     <h5 class="modal-title" id="modalTambahUserLabel">Tambah User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
-                <form action="index.php?controller=user&action=store" method="POST" autocomplete="off">
+                <form action="index.php?controller=users&action=store" method="POST" autocomplete="off">
                     <div class="modal-body">
                         <?php $renderFields(false); ?>
                     </div>
@@ -212,7 +212,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                     <h5 class="modal-title" id="modalEditUserLabel">Edit User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
-                <form action="index.php?controller=user&action=update" method="POST" autocomplete="off">
+                <form action="index.php?controller=users&action=update" method="POST" autocomplete="off">
                     <input type="hidden" name="id">
                     <div class="modal-body">
                         <?php $renderFields(true); ?>
@@ -234,7 +234,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                     <h5 class="modal-title" id="modalHapusUserLabel">Konfirmasi Hapus User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
-                <form action="index.php?controller=user&action=delete" method="POST">
+                <form action="index.php?controller=users&action=delete" method="POST">
                     <input type="hidden" id="hapusUserId" name="id">
                     <div class="modal-body">
                         <p class="mb-2">Apakah Anda yakin ingin menghapus user <strong id="hapusUserName">ini</strong>?</p>

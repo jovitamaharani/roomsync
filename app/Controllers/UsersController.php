@@ -18,7 +18,7 @@ class UsersController
         if ($type && $message) {
             $_SESSION['flash'] = ['type' => $type, 'message' => $message];
         }
-        header("Location: index.php?controller=user&action=index");
+        header("Location: index.php?controller=users&action=index");
         exit;
     }
 
@@ -28,7 +28,7 @@ class UsersController
         unset($data['password'], $data['password_confirm']);
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
         $_SESSION['old'] = ['modal' => $modal, 'data' => $data];
-        header("Location: index.php?controller=user&action=index");
+        header("Location: index.php?controller=users&action=index");
         exit;
     }
 
