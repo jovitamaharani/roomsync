@@ -62,6 +62,10 @@ $logs = $logs ?? [];
                                     </td>
                                     <td>
                                         <?= $e($log['user_name'] ?? '-') ?>
+                                        <?php if (!empty($log['classroom'] ?? $log['class_name'])): ?>
+                                            <small
+                                                class="text-muted d-block"><?= $e($log['classroom'] ?? $log['class_name']) ?></small>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <span class="badge bg-success-subtle text-success-emphasis mb-1">Booking</span>
