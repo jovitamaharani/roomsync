@@ -244,7 +244,7 @@ include __DIR__ . '/../components/sidebar.php';
                     <h5 class="modal-title" id="modalHapusRoomLabel">Konfirmasi Hapus Ruang</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
-                <form action="index.php?controller=room&action=delete" method="POST">
+                <form action="index.php?controller=rooms&action=delete" method="POST">
                     <input type="hidden" id="hapusRoomId" name="id">
                     <div class="modal-body">
                         <p class="mb-2">Apakah Anda yakin ingin menghapus ruang <strong id="hapusRoomName">ini</strong>?

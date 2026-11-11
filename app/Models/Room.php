@@ -6,48 +6,58 @@ class Room
     private $viewStatus = "vw_room_status";
     private $todaySchedules;
 
-    public function __construct($db)
-    {
-        $this->conn = $db;
+ public function __construct($db)
+{
+    $this->conn = $db;
+
     $now   = "(NOW() AT TIME ZONE 'Asia/Jakarta')";
     $today = "{$now}::date";
     $time  = "{$now}::time";
 
+    // Jadwal kuliah hari ini yang benar-benar berlangsung, diambil dari vw_today_schedules
     $this->todaySchedules = "
-        SELECT s.id AS schedule_id, s.room_id,
-               c.name AS course, c.kode_mk,
-               l.name AS lecturer, sc.name AS class_name,
-               s.start_time, s.end_time
-        FROM schedules s
-        JOIN courses c        ON c.id  = s.course_id
-        JOIN lecturers l      ON l.id  = s.lecturer_id
-        JOIN student_class sc ON sc.id = s.student_class_id
-        WHERE s.day_of_week = EXTRACT(ISODOW FROM {$now})::int
-          AND NOT EXISTS (
-              SELECT 1 FROM schedule_exceptions e
-              WHERE e.schedule_id = s.id AND e.date = {$today}
-          )
+        SELECT t.room_id, t.course, t.kode_mk, t.lecturer,
+               t.classroom AS class_name, t.start_time, t.end_time
+        FROM vw_today_schedules t
+        WHERE t.academic_year_active = TRUE
+          AND t.exception_type IS NULL
+          AND t.day_of_week = EXTRACT(ISODOW FROM {$now})::int
+          AND t.semester::text = CASE
+                WHEN EXTRACT(MONTH FROM {$now}) BETWEEN 2 AND 7 THEN 'Genap'
+                ELSE 'Ganjil' END
     ";
 
     $this->viewStatus = "(
-        SELECT r.*,
-          CASE
-            WHEN EXISTS (
-                SELECT 1 FROM ({$this->todaySchedules}) ts
-                WHERE ts.room_id = r.id
-                  AND {$time} BETWEEN ts.start_time AND ts.end_time
-            ) OR EXISTS (
-                SELECT 1 FROM bookings b
-                WHERE b.room_id = r.id
-                  AND b.date = {$today}
-                  AND {$time} BETWEEN b.start_time AND b.end_time
-                  AND b.status::text = 'approved'  -- sesuaikan dengan enum status booking
-            )
-            THEN 'terpakai' ELSE 'kosong'
-          END AS status
-        FROM rooms r
-    )";
-    }
+    SELECT r.*,
+           cur.course     AS current_course,
+           cur.lecturer   AS current_lecturer,
+           cur.class_name AS current_class,
+           cur.start_time AS current_start,
+           cur.end_time   AS current_end,
+           bk.purpose     AS current_purpose,
+           CASE WHEN cur.room_id IS NOT NULL OR bk.room_id IS NOT NULL
+                THEN 'terpakai' ELSE 'kosong' END AS status
+    FROM rooms r
+    LEFT JOIN LATERAL (
+        SELECT ts.*
+        FROM ({$this->todaySchedules}) ts
+        WHERE ts.room_id = r.id
+          AND {$time} >= ts.start_time AND {$time} < ts.end_time
+        ORDER BY ts.start_time
+        LIMIT 1
+    ) cur ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT b.room_id, b.purpose
+        FROM bookings b
+        WHERE b.room_id = r.id
+          AND b.date = {$today}
+          AND {$time} >= b.start_time AND {$time} < b.end_time
+          AND b.status::text = 'approved'   -- sesuaikan dengan enum status booking
+        ORDER BY b.start_time
+        LIMIT 1
+    ) bk ON TRUE
+)";
+}
 
     public function getAll()
     {
@@ -187,4 +197,44 @@ class Room
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+
+public function getWeeklySchedules()
+{
+    $stmt = $this->conn->prepare(
+        "SELECT s.room_id,
+                s.day_of_week,
+                to_char(s.start_time, 'HH24:MI') AS start_time,
+                to_char(s.end_time,   'HH24:MI') AS end_time,
+                co.name    AS course,
+                co.kode_mk AS code,
+                l.name     AS lecturer,
+                sc.name    AS classroom
+         FROM schedules s
+         JOIN courses co       ON co.id = s.course_id
+         JOIN lecturers l      ON l.id  = s.lecturer_id
+         JOIN student_class sc ON sc.id = s.student_class_id
+         JOIN academic_years ay ON ay.id = sc.academic_year_id
+         WHERE ay.is_active = TRUE
+        AND s.semester::text = CASE
+        WHEN EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'Asia/Jakarta')) BETWEEN 1 AND 6
+        THEN 'Genap' ELSE 'Ganjil' END
+         ORDER BY s.day_of_week ASC, s.start_time ASC"
+    );
+    $stmt->execute();
+
+    $byRoom = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $byRoom[$row['room_id']][] = [
+            'day'       => (int) $row['day_of_week'],
+            'start'     => $row['start_time'],
+            'end'       => $row['end_time'],
+            'course'    => $row['course'],
+            'code'      => $row['code'],
+            'lecturer'  => $row['lecturer'],
+            'classroom' => $row['classroom'],
+        ];
+    }
+    return $byRoom;
+}
 }

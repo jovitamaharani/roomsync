@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . "/../../config/database.php";
 require_once __DIR__ . "/../Models/Room.php";
+require_once __DIR__ . "/../../config/SupabaseStorage.php";
 
 class RoomController
 {
     private $roomModel;
+    private $storage;
     private const IMAGE_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    private const UPLOAD_DIR = 'public/image/';
     private const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 
     public function __construct()
@@ -14,6 +15,7 @@ class RoomController
         Auth::requireRole(['Admin']);
         $db = (new Database())->getConnection();
         $this->roomModel = new Room($db);
+        $this->storage = new SupabaseStorage();
     }
 
     private function redirect($type = null, $message = null)
@@ -113,9 +115,16 @@ class RoomController
 
     public function store()
     {
+        [$image, $imageError] = $this->saveImage($_FILES['image'] ?? []);
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect();
         }
+
+        $data['image_path'] = $image;
+        if ($imageError) {
+            $this->fail($imageError, $data, 'add');
+        }
+
         $this->guardPostSize();
 
         $data = $this->collect();
@@ -123,8 +132,8 @@ class RoomController
             $this->fail($error, $data, 'add');
         }
 
-        [$image, $imageError] = $this->saveImage($_FILES['image']??[]);
-        if($imageError){
+        [$image, $imageError] = $this->saveImage($_FILES['image'] ?? []);
+        if ($imageError) {
             $this->fail($imageError, $data, 'add');
         }
 
@@ -132,6 +141,7 @@ class RoomController
             $this->roomModel->create($data);
             $this->redirect('success', 'Ruangan berhasil ditambahkan.');
         } catch (PDOException $e) {
+            $this->storage->deleteByUrl($image);   // batalkan upload kalau insert gagal
             if ($message = $this->dbErrorMessage($e)) {
                 $this->fail($message, $data, 'add');
             }
@@ -156,7 +166,8 @@ class RoomController
         require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function update(){
+    public function update()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect();
         }
@@ -169,42 +180,43 @@ class RoomController
         }
 
         $current = $this->roomModel->getById($id);
-        if(!$current){
+        if (!$current) {
             $this->redirect('error', 'Data tidak ditemukan');
         }
-        $currentImage = $current['image_path']??null;
+        $currentImage = $current['image_path'] ?? null;
 
         $data = $this->collect();
         $old = ['id' => $id, 'image_path' => $currentImage] + $data;
 
-        if ($error = $this->validate($data)) {
-            $this->fail($error, $old, 'edit');
-        }
+[$newImage, $imageError] = $this->saveImage($_FILES['image'] ?? []);
+if ($imageError) {
+    $this->fail($imageError, $old, 'edit');
+}
 
-        [$newImage, $imageError] = $this->saveImage($_FILES['image']);
-        if($error = $this->validate($data)){
-            $this->fail($error, $old, 'edit');
-        }
+$imagePath = $currentImage;
+if ($newImage) {
+    $imagePath = $newImage;
+} elseif (isset($_POST['remove_image'])) {
+    $imagePath = null;
+}
+$data['image_path'] = $imagePath;   // wajib, kalau tidak gambar lama terhapus
 
-        // File baru menggantikan yang lama; centang "hapus foto" mengosongkannya; selain itu dibiarkan
-        $imagePath = $currentImage;
-        if ($newImage) {
-            $imagePath = $newImage;
-        } elseif (isset($_POST['remove_image'])) {
-            $imagePath = null;
-        }
-
-        try {
-            if (!$this->roomModel->update($id, $data)) {
-                $this->redirect('error', 'Data tidak ditemukan.');
-            }
-            $this->redirect('success', 'Ruangan berhasil diperbarui.');
-        } catch (PDOException $e) {
-            if ($message = $this->dbErrorMessage($e)) {
-                $this->fail($message, $old, 'edit');
-            }
-            throw $e;
-        }
+try {
+    if (!$this->roomModel->update($id, $data)) {
+        $this->storage->deleteByUrl($newImage);
+        $this->redirect('error', 'Data tidak ditemukan.');
+    }
+    if ($imagePath !== $currentImage) {
+        $this->storage->deleteByUrl($currentImage);   // buang file lama
+    }
+    $this->redirect('success', 'Ruangan berhasil diperbarui.');
+} catch (PDOException $e) {
+    $this->storage->deleteByUrl($newImage);
+    if ($message = $this->dbErrorMessage($e)) {
+        $this->fail($message, $old, 'edit');
+    }
+    throw $e;
+}
     }
 
     public function delete($id = null)
@@ -222,7 +234,6 @@ class RoomController
             if (!$this->roomModel->delete($id)) {
                 $this->redirect('error', 'Data tidak ditemukan.');
             }
-            $this->deleteImageFile($room['image_path']??null);
             $this->redirect('success', 'Ruangan berhasil dihapus.');
         } catch (PDOException $e) {
             if ($e->getCode() === '23503') {
@@ -261,33 +272,18 @@ class RoomController
             return [null, 'Format gambar harus JPG, PNG, atau WebP.'];
         }
 
-        $dir = __DIR__ . '/../../' . self::UPLOAD_DIR;
-        if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
-            return [null, 'Folder penyimpanan gambar tidak bisa dibuat.'];
-        }
-
         $name = bin2hex(random_bytes(16)) . '.' . self::IMAGE_TYPES[$mime];
-        if (!move_uploaded_file($file['tmp_name'], $dir . $name)) {
-            return [null, 'Gagal menyimpan gambar.'];
+        $url = $this->storage->upload($file['tmp_name'], $name, $mime);
+        if (!$url) {
+            return [null, 'Gagal mengunggah gambar ke penyimpanan.'];
         }
-        return [self::UPLOAD_DIR . $name, null];
+        return [$url, null];
     }
 
     private function guardPostSize()
     {
         if (empty($_POST) && empty($_FILES) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
             $this->redirect('error', 'Data yang dikirim melebihi batas server. Gunakan gambar yang lebih kecil (maksimal 2 MB).');
-        }
-    }
-
-    private function deleteImageFile($path)
-    {
-        if (!$path || !preg_match('#^' . preg_quote(self::UPLOAD_DIR, '#') . '[a-f0-9]{32}\.(jpg|png|webp)$#', $path)) {
-            return;
-        }
-        $full = __DIR__ . '/../../' . $path;
-        if (is_file($full)) {
-            @unlink($full);
         }
     }
 }
