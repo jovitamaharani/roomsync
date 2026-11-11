@@ -28,7 +28,7 @@ class UsersController
         unset($data['password'], $data['password_confirm']);
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
         $_SESSION['old'] = ['modal' => $modal, 'data' => $data];
-        header("Location: index.php?controller=user&action=index");
+        header("Location: index.php?controller=users&action=index");
         exit;
     }
 
@@ -109,7 +109,7 @@ class UsersController
         $users = $this->userModel->getAll();
         $options = $this->userModel->getFormOptions();
         $canAdd = !empty($options['roles']);
-        require_once __DIR__ . "/../Views/user/user/index.php";
+        require_once __DIR__ . "/../Views/admin/users/index.php";
     }
 
     public function store()

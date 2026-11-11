@@ -1,10 +1,130 @@
+
 <?php
 $activeAdminPage = 'users';
-$pageTitle = 'Kelola Pengguna - Admin JTI';
-$pageHeading = 'Kelola Pengguna';
+$pageTitle = 'User - Admin JTI';
+$pageHeading = 'Daftar User';
 
-include __DIR__ . '/../components/header.php';
-include __DIR__ . '/../components/sidebar.php';
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
+
+$oldState = $_SESSION['old'] ?? null;
+unset($_SESSION['old']);
+
+$h = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES);
+$selfId = strtolower((string) (Auth::user()['id'] ?? ''));
+
+// FORM TAMBAH DAN EDIT USER
+$renderFields = function (bool $forEdit) use ($options, $h) { ?>
+
+    <!-- NAMA -->
+    <div class="mb-3">
+        <label class="form-label">
+            Nama <span class="text-danger">*</span>
+        </label>
+        <input type="text" class="form-control" name="name"
+            maxlength="100" required>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="mb-3">
+        <label class="form-label">
+            Email <span class="text-danger">*</span>
+        </label>
+        <input type="email" class="form-control" name="email"
+            maxlength="150" required>
+    </div>
+
+    <!-- ROLE DAN KELAS -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label class="form-label">
+                Role <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" name="role_id" required>
+                <option value="">-- Pilih role --</option>
+                <?php foreach ($options['roles'] as $r): ?>
+                    <option value="<?= $h($r['id']); ?>">
+                        <?= $h($r['name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Kelas <span class="text-muted small">(opsional)</span>
+            </label>
+            <select class="form-select" name="student_class_id">
+                <option value="">-- Tidak ada --</option>
+                <?php foreach ($options['classes'] as $c): ?>
+                    <option value="<?= $h($c['id']); ?>">
+                        <?= $h($c['name'] . ' (' . $c['academic_year'] . ')'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <!-- PASSWORD DAN KONFIRMASI -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">
+                <?= $forEdit ? 'Password Baru' : 'Password'; ?>
+                <?php if (!$forEdit): ?>
+                    <span class="text-danger">*</span>
+                <?php endif; ?>
+            </label>
+
+            <div class="input-group password-field">
+                <input type="password"
+                    class="form-control"
+                    name="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="72"
+                    <?= $forEdit ? '' : 'required'; ?>>
+
+                <button type="button"
+                    class="btn btn-outline-secondary toggle-password"
+                    aria-label="Tampilkan password"
+                    aria-pressed="false">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+
+            <div class="form-text">
+                <?= $forEdit ? 'Kosongkan jika tidak ingin mengganti password. ' : ''; ?>
+                Minimal 8 karakter.
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Konfirmasi Password
+            </label>
+
+            <div class="input-group password-field">
+                <input type="password"
+                    class="form-control"
+                    name="password_confirm"
+                    autocomplete="new-password"
+                    maxlength="72"
+                    <?= $forEdit ? '' : 'required'; ?>>
+
+                <button type="button"
+                    class="btn btn-outline-secondary toggle-password"
+                    aria-label="Tampilkan password"
+                    aria-pressed="false">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<?php };
+
+include __DIR__ . '/../../admin/components/header.php';
+include __DIR__ . '/../../admin/components/sidebar.php';
 ?>
 
 <!-- BACKDROP SIDEBAR MOBILE -->
@@ -14,10 +134,12 @@ include __DIR__ . '/../components/sidebar.php';
 <main class="main-area">
 
     <!-- NAVBAR -->
-    <?php include __DIR__ . '/../components/navbar.php'; ?>
+    <?php include __DIR__ . '/../../admin/components/navbar.php'; ?>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toastArea" class="toast-container position-fixed top-0 end-0 p-3"></div>
+    <div id="toastArea"
+        class="toast-container position-fixed top-0 end-0 p-3"
+        style="z-index: 1100;"></div>
 
     <!-- PAGE CONTENT -->
     <section class="page-content">
@@ -27,51 +149,124 @@ include __DIR__ . '/../components/sidebar.php';
 
                 <div class="card-heading">
                     <div>
-                        <h3>Kelola Pengguna</h3>
-                        <p>Manajemen akun admin, ketua kelas, dan headmaster sistem SIKARA.</p>
+                        <h3>Daftar User</h3>
+                        <p>Manajemen akun pengguna.</p>
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap">
-                        <input type="file" id="importUsers" accept=".xlsx,.xls,.csv" hidden>
-                        <button class="btn btn-outline-primary" data-import="users">
-                            <i class="bi bi-file-earmark-excel me-1"></i>
-                            Impor Excel
-                        </button>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                        <button type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalTambahUser"
+                            <?= $canAdd ? '' : 'disabled'; ?>>
                             <i class="bi bi-plus-lg me-1"></i>
-                            Tambah Pengguna
+                            Tambah User
                         </button>
                     </div>
                 </div>
 
-                <!-- FILTER TOOLBAR (INLINE DENGAN DATATABLES SEARCH) -->
-                <div class="table-custom-filters d-none" data-table-filter-group="users">
-                    <select class="form-select" id="filterPeranUsers" data-table="users" data-col="3">
-                        <option value="">Semua Peran</option>
-                        <option value="Admin">Admin</option>
-                        <option value="Ketua Kelas">Ketua Kelas</option>
-                        <option value="Headmaster">Headmaster</option>
-                    </select>
-                    <select class="form-select" id="filterStatusUsers" data-table="users" data-col="4">
-                        <option value="">Semua Status</option>
-                        <option value="Aktif">Aktif</option>
-                        <option value="Nonaktif">Nonaktif</option>
-                    </select>
-                </div>
+                <?php if (!$canAdd): ?>
+                    <div class="alert alert-warning mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        User belum bisa dibuat. Tambahkan dulu minimal satu role.
+                    </div>
+                <?php endif; ?>
 
+                <!-- ALERT NOTIFIKASI -->
+                <?php if (!empty($flash)): ?>
+                    <div class="alert <?= ($flash['type'] ?? '') === 'error' ? 'alert-danger' : 'alert-success' ?> alert-dismissible fade show mb-3"
+                        role="alert">
+
+                        <i class="bi <?= ($flash['type'] ?? '') === 'error' ? 'bi-exclamation-triangle' : 'bi-check-circle' ?> me-2"></i>
+
+                        <?= $h($flash['message'] ?? ''); ?>
+
+                        <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
+                <!-- TABEL USER -->
                 <div class="table-responsive">
-                    <table id="usersTable" class="display table table-striped table-hover align-middle w-100">
+                    <table id="usersTable"
+                        class="display table table-striped table-hover align-middle w-100">
+
                         <thead>
                             <tr>
-                                <th>NIM / NIP / Username</th>
-                                <th>Nama Lengkap</th>
+                                <th>Nama</th>
                                 <th>Email</th>
-                                <th>Peran</th>
-                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Kelas</th>
+                                <th>Dibuat</th>
                                 <th class="text-center" style="width: 170px;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+
+                        <tbody>
+                            <?php foreach ($users as $item):
+                                $isSelf = strtolower($item['id']) === $selfId;
+                                $created = substr((string) $item['created_at'], 0, 10);
+
+                                $payload = [
+                                    'id' => $item['id'],
+                                    'name' => $item['name'],
+                                    'email' => $item['email'],
+                                    'role_id' => $item['role_id'],
+                                    'student_class_id' => $item['student_class_id'],
+                                ];
+                            ?>
+
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">
+                                            <?= $h($item['name']); ?>
+                                        </span>
+
+                                        <?php if ($isSelf): ?>
+                                            <span class="badge bg-secondary ms-1">
+                                                Anda
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td><?= $h($item['email']); ?></td>
+                                    <td><?= $h($item['role_name']); ?></td>
+
+                                    <td>
+                                        <?= $item['class_name']
+                                            ? $h($item['class_name'] . ' (' . $item['academic_year'] . ')')
+                                            : '-'; ?>
+                                    </td>
+
+                                    <td data-order="<?= $h($created); ?>">
+                                        <?= $created ? $h(date('d/m/Y', strtotime($created))) : '-'; ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-warning text-dark me-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalEditUser"
+                                            data-user="<?= $h(json_encode($payload)); ?>">
+                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                        </button>
+
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalHapusUser"
+                                            data-id="<?= $h($item['id']); ?>"
+                                            data-label="<?= $h($item['name'] . ' (' . $item['email'] . ')'); ?>"
+                                            <?= $isSelf ? 'disabled title="Tidak bisa menghapus akun sendiri"' : ''; ?>>
+                                            Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            <?php endforeach; ?>
+                        </tbody>
                     </table>
                 </div>
 
@@ -80,136 +275,385 @@ include __DIR__ . '/../components/sidebar.php';
 
     </section>
 
-    <!-- MODAL TAMBAH USER (BOOTSTRAP) -->
-    <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-labelledby="modalTambahUserLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- MODAL TAMBAH USER -->
+    <div class="modal fade"
+        id="modalTambahUser"
+        tabindex="-1"
+        aria-labelledby="modalTambahUserLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahUserLabel">Tambah Pengguna</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    <h5 class="modal-title" id="modalTambahUserLabel">
+                        Tambah User
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Tutup"></button>
                 </div>
-                <form id="formTambahUser" action="" method="POST">
+
+                <form action="index.php?controller=user&action=store"
+                    method="POST"
+                    autocomplete="off">
+
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="usernameUser" class="form-label">NIM / NIP / Username</label>
-                            <input type="text" class="form-control" id="usernameUser" name="username" placeholder="Contoh: 2341720001 atau 19870101..." required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="namaUser" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="namaUser" name="nama" placeholder="Contoh: Muhammad Rizky" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="emailUser" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="emailUser" name="email" placeholder="Contoh: user@polinema.ac.id" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="peranUser" class="form-label">Peran (Role)</label>
-                                <select class="form-select" id="peranUser" name="peran" required>
-                                    <option value="" selected disabled>Pilih Peran</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Ketua Kelas">Ketua Kelas</option>
-                                    <option value="Headmaster">Headmaster</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="statusUser" class="form-label">Status Akun</label>
-                                <select class="form-select" id="statusUser" name="status" required>
-                                    <option value="Aktif" selected>Aktif</option>
-                                    <option value="Nonaktif">Nonaktif</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="passwordUser" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="passwordUser" name="password" placeholder="Minimal 6 karakter" required>
-                        </div>
+                        <?php $renderFields(false); ?>
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            Simpan
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL EDIT USER (BOOTSTRAP) -->
-    <div class="modal fade" id="modalEditUser" tabindex="-1" aria-labelledby="modalEditUserLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- MODAL EDIT USER -->
+    <div class="modal fade"
+        id="modalEditUser"
+        tabindex="-1"
+        aria-labelledby="modalEditUserLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditUserLabel">Edit Data Pengguna</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    <h5 class="modal-title" id="modalEditUserLabel">
+                        Edit User
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Tutup"></button>
                 </div>
-                <form id="formEditUser" action="" method="POST">
-                    <input type="hidden" id="editRowIndexUser" name="row_index">
+
+                <form action="index.php?controller=user&action=update"
+                    method="POST"
+                    autocomplete="off">
+
+                    <input type="hidden" name="id">
+
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="editUsernameUser" class="form-label">NIM / NIP / Username</label>
-                            <input type="text" class="form-control" id="editUsernameUser" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNamaUser" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="editNamaUser" name="nama" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editEmailUser" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editEmailUser" name="email" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="editPeranUser" class="form-label">Peran (Role)</label>
-                                <select class="form-select" id="editPeranUser" name="peran" required>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Ketua Kelas">Ketua Kelas</option>
-                                    <option value="Headmaster">Headmaster</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="editStatusUser" class="form-label">Status Akun</label>
-                                <select class="form-select" id="editStatusUser" name="status" required>
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Nonaktif">Nonaktif</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPasswordUser" class="form-label">Password Baru <small class="text-muted">(Kosongkan jika tidak diubah)</small></label>
-                            <input type="password" class="form-control" id="editPasswordUser" name="password" placeholder="Isi untuk mengganti password">
-                        </div>
+                        <?php $renderFields(true); ?>
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            Simpan Perubahan
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL HAPUS DATA (BOOTSTRAP) -->
-    <div class="modal fade" id="modalHapus" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
+    <!-- MODAL HAPUS USER -->
+    <div class="modal fade"
+        id="modalHapusUser"
+        tabindex="-1"
+        aria-labelledby="modalHapusUserLabel"
+        aria-hidden="true">
+
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalHapusLabel">Konfirmasi Hapus Data</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    <h5 class="modal-title" id="modalHapusUserLabel">
+                        Konfirmasi Hapus User
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Tutup"></button>
                 </div>
-                <form id="formHapus" action="" method="POST">
-                    <input type="hidden" id="hapusRowIndex" name="row_index">
+
+                <form action="index.php?controller=user&action=delete"
+                    method="POST">
+
+                    <input type="hidden" id="hapusUserId" name="id">
+
                     <div class="modal-body">
-                        <p class="mb-2">Apakah Anda yakin ingin menghapus data <strong id="hapusItemLabel">ini</strong>?</p>
-                        <p class="text-danger small mb-0"><i class="bi bi-exclamation-triangle me-1"></i>Tindakan ini tidak dapat dibatalkan.</p>
+                        <p class="mb-2">
+                            Apakah Anda yakin ingin menghapus user
+                            <strong id="hapusUserName">ini</strong>?
+                        </p>
+
+                        <p class="text-danger small mb-0">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Tindakan ini tidak dapat dibatalkan.
+                        </p>
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button type="submit" class="btn btn-danger">
+                            Hapus
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER & SCRIPTS -->
-    <?php include __DIR__ . '/../components/footer.php'; ?>
+    <!-- JAVASCRIPT -->
+    <script>
+        // DATA FORM LAMA JIKA VALIDASI GAGAL
+        const oldState = <?= json_encode(
+            $oldState,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        ); ?>;
+
+        // MENGISI FORM EDIT
+        function fillForm(form, data) {
+            Object.keys(data).forEach(function (key) {
+                const el = form.elements[key];
+
+                if (el) {
+                    el.value = data[key] ?? '';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // DATATABLES
+            function initTable() {
+                if (typeof DataTable === 'undefined') {
+                    setTimeout(initTable, 50);
+                    return;
+                }
+
+                if (
+                    document.getElementById('usersTable') &&
+                    !DataTable.isDataTable('#usersTable')
+                ) {
+                    new DataTable('#usersTable', {
+                        pageLength: 10,
+                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                        order: [[0, 'asc']],
+                        columnDefs: [
+                            { orderable: false, targets: -1 }
+                        ],
+                        layout: {
+                            topStart: {
+                                buttons: [
+                                    {
+                                        extend: "copy",
+                                        text: '<i class="bi bi-clipboard me-1"></i>Copy',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    {
+                                        extend: "excel",
+                                        text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    {
+                                        extend: "pdf",
+                                        text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    },
+                                    {
+                                        extend: "print",
+                                        text: '<i class="bi bi-printer me-1"></i>Print',
+                                        exportOptions: { columns: ':not(:last-child)' }
+                                    }
+                                ]
+                            },
+                            topEnd: "search",
+                            bottomStart: "info",
+                            bottomEnd: "paging"
+                        },
+                        language: {
+                            search: "Search:",
+                            searchPlaceholder: "Search records...",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                            infoEmpty: "Showing 0 to 0 of 0 entries",
+                            zeroRecords: "No matching records found",
+                            emptyTable: "No data available in table",
+                            paginate: {
+                                first: "«",
+                                last: "»",
+                                next: "›",
+                                previous: "‹"
+                            }
+                        }
+                    });
+                }
+            }
+
+            initTable();
+
+            const modalTambahEl = document.getElementById('modalTambahUser');
+            const modalEditEl = document.getElementById('modalEditUser');
+            const modalHapusEl = document.getElementById('modalHapusUser');
+
+            // TAMPILKAN / SEMBUNYIKAN PASSWORD
+            document.addEventListener('click', function (event) {
+                const button = event.target.closest('.toggle-password');
+
+                if (!button) return;
+
+                const wrapper = button.closest('.password-field');
+                const input = wrapper
+                    ? wrapper.querySelector('input')
+                    : null;
+
+                const icon = button.querySelector('i');
+
+                if (!input || !icon) return;
+
+                const willShow = input.type === 'password';
+
+                input.type = willShow ? 'text' : 'password';
+
+                icon.classList.toggle('bi-eye', !willShow);
+                icon.classList.toggle('bi-eye-slash', willShow);
+
+                button.setAttribute('aria-pressed', String(willShow));
+
+                button.setAttribute(
+                    'aria-label',
+                    willShow
+                        ? 'Sembunyikan password'
+                        : 'Tampilkan password'
+                );
+            });
+
+            // RESET VISIBILITAS PASSWORD
+            function resetPasswordVisibility(form) {
+                if (!form) return;
+
+                form.querySelectorAll('.password-field').forEach(function (wrapper) {
+                    const input = wrapper.querySelector('input');
+                    const button = wrapper.querySelector('.toggle-password');
+                    const icon = button
+                        ? button.querySelector('i')
+                        : null;
+
+                    if (input) {
+                        input.type = 'password';
+                    }
+
+                    if (icon) {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+
+                    if (button) {
+                        button.setAttribute('aria-pressed', 'false');
+                        button.setAttribute(
+                            'aria-label',
+                            'Tampilkan password'
+                        );
+                    }
+                });
+            }
+
+            // MODAL TAMBAH
+            modalTambahEl.addEventListener('hidden.bs.modal', function () {
+                const form = modalTambahEl.querySelector('form');
+
+                form.reset();
+                resetPasswordVisibility(form);
+            });
+
+            // MODAL EDIT
+            modalEditEl.addEventListener('hidden.bs.modal', function () {
+                resetPasswordVisibility(
+                    modalEditEl.querySelector('form')
+                );
+            });
+
+            // ISI DATA EDIT
+            modalEditEl.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                if (button && button.dataset.user) {
+                    const form = modalEditEl.querySelector('form');
+
+                    fillForm(
+                        form,
+                        JSON.parse(button.dataset.user)
+                    );
+
+                    form.elements.password.value = '';
+                    form.elements.password_confirm.value = '';
+
+                    resetPasswordVisibility(form);
+                }
+            });
+
+            // MODAL HAPUS
+            modalHapusEl.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                if (button) {
+                    document.getElementById('hapusUserId').value =
+                        button.dataset.id || '';
+
+                    document.getElementById('hapusUserName').textContent =
+                        button.dataset.label
+                            ? '"' + button.dataset.label + '"'
+                            : 'ini';
+                }
+            });
+
+            // BUKA KEMBALI MODAL JIKA VALIDASI GAGAL
+            function reopenModal() {
+                if (typeof bootstrap === 'undefined') {
+                    setTimeout(reopenModal, 50);
+                    return;
+                }
+
+                const el = oldState.modal === 'edit'
+                    ? modalEditEl
+                    : modalTambahEl;
+
+                const form = el.querySelector('form');
+
+                fillForm(form, oldState.data);
+                resetPasswordVisibility(form);
+
+                bootstrap.Modal.getOrCreateInstance(el).show();
+            }
+
+            if (oldState) {
+                reopenModal();
+            }
+
+        });
+    </script>
+
+    <!-- FOOTER -->
+    <?php include __DIR__ . '/../../admin/components/footer.php'; ?>
+</main>
