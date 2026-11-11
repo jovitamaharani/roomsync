@@ -43,7 +43,7 @@ class OccupancyLogController
 
         $filters = ['from' => $from, 'to' => $to];
         $rowLimit = self::ROW_LIMIT;
-        $logs = $this->logModel->getHistory($from, $to, $rowLimit);
+        $logs = $this->logModel->getHistory($from, $to, null, $rowLimit);
         $roomNames = $this->logModel->getRoomNames();
 
         require_once "app/Views/admin/occupancy_log/index.php";

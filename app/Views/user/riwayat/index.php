@@ -20,6 +20,13 @@ $sourceBadge = [
   'bubar' => ['class' => 'bg-danger-subtle text-danger', 'label' => 'Bubar Kelas'],
   'other' => ['class' => 'bg-secondary-subtle text-secondary', 'label' => 'Lainnya']
 ];
+$statusBadge = [
+  'Berlangsung' => ['class' => 'bg-warning-subtle text-warning', 'label' => 'Berlangsung'],
+  'Selesai' => ['class' => 'bg-secondary-subtle text-secondary', 'label' => 'Selesai'],
+  'Terkonfirmasi' => ['class' => 'bg-info-subtle text-info', 'label' => 'Terkonfirmasi'],
+  'Dibatalkan' => ['class' => 'bg-danger-subtle text-danger', 'label' => 'Dibatalkan'],
+  'Tidak Hadir' => ['class' => 'bg-dark-subtle text-dark', 'label' => 'Tidak Hadir']
+];
 ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
@@ -58,11 +65,10 @@ $sourceBadge = [
               placeholder="Nama peminjam, dosen, ruang, kegiatan...">
           </div>
 
-          <!-- Jenis Aktivitas -->
           <div class="filter-group">
             <label for="logFilterType">Jenis Aktivitas</label>
             <select id="logFilterType" class="form-select">
-              <option value="ALL">Semua Jenis Riwayat</option>
+              <option value="">Pilih Jenis Aktivitas</option>
               <option value="bubar">Bubar Kelas (Override)</option>
               <option value="schedule">Jadwal Kuliah</option>
               <option value="booking">Peminjaman Mahasiswa</option>
@@ -70,11 +76,10 @@ $sourceBadge = [
             </select>
           </div>
 
-          <!-- Ruangan -->
           <div class="filter-group">
             <label for="logFilterRoom">Ruangan</label>
             <select id="logFilterRoom" class="form-select">
-              <option value="ALL">Semua Ruangan</option>
+              <option value="">Pilih Ruangan</option>
               <?php foreach ($rooms as $room): ?>
                 <option value="<?= $e($room) ?>"><?= $e($room) ?></option>
               <?php endforeach; ?>
@@ -84,9 +89,9 @@ $sourceBadge = [
       </div>
 
       <!-- Tabel Data -->
-      <div class="table-card log-table-card">
+      <div class="table-card log-table-card p-3">
         <div class="table-responsive">
-          <table class="data-table" id="userOccupancyTable">
+          <table class="table table-hover align-middle data-table w-100" id="userOccupancyTable">
             <thead>
               <tr>
                 <th>Waktu (WIB)</th>
@@ -95,68 +100,85 @@ $sourceBadge = [
                 <th>Aktor / Pihak Terkait</th>
                 <th>Detail Aktivitas / Penggunaan</th>
                 <th>Status Akhir</th>
+                <th class="text-start" style="width: 160px;">Aksi</th>
               </tr>
             </thead>
             <tbody id="auditLogTableBody">
-              <?php if (empty($logs)): ?>
-                <tr id="emptyInitialRow">
-                  <td colspan="6" class="text-center py-4 text-muted">Belum ada riwayat penggunaan ruangan pada periode
-                    ini.</td>
+              <?php foreach ($logs as $log):
+                $source = (string) ($log['source'] ?? 'other');
+                $badge = $sourceBadge[$source] ?? $sourceBadge['other'];
+                $ongoing = $isTrue($log['is_ongoing'] ?? false);
+                $detail = ($source === 'schedule')
+                  ? implode(' • ', array_filter([$log['course'] ?? '', $log['lecturer'] ?? '']))
+                  : ($log['purpose'] ?? '-');
+                $actorSub = $log['classroom'] ?? ($log['user_role'] ?? '');
+                $finalStatus = $log['status_label'] ?? ($ongoing ? 'Berlangsung' : 'Selesai');
+                $statusInfo = $statusBadge[$finalStatus] ?? ['class' => 'bg-secondary-subtle text-secondary', 'label' => $finalStatus];
+                $isBookingConfirmed = ($source === 'booking' && $finalStatus === 'Terkonfirmasi');
+                $rawTimestamp = strtotime((string) ($log['start_time'] ?? 'now'));
+                $timeRange = $formatTime($log['start_time']) . ' - ' . $formatTime($log['end_time']);
+                $dateFormatted = $formatDate($log['usage_date'] ?? $log['start_time']);
+                ?>
+                <tr>
+                  <td data-order="<?= $rawTimestamp ?>">
+                    <strong><?= $e($dateFormatted) ?></strong>
+                    <small class="text-muted d-block"><?= $e($timeRange) ?></small>
+                  </td>
+                  <td>
+                    <strong><?= $e($log['room'] ?? '-') ?></strong>
+                    <small class="text-muted d-block"><?= $e($log['building'] ?? '') ?></small>
+                  </td>
+                  <td>
+                    <span class="badge <?= $badge['class'] ?>"><?= $badge['label'] ?></span>
+                  </td>
+                  <td>
+                    <strong><?= $e($log['user_name'] ?? '-') ?></strong>
+                    <?php if (!empty($actorSub)): ?>
+                      <small class="text-muted d-block"><?= $e($actorSub) ?></small>
+                    <?php endif; ?>
+                  </td>
+                  <td><?= $e($detail !== '' ? $detail : '-') ?></td>
+                  <td>
+                    <span class="badge <?= $statusInfo['class'] ?>">
+                      <?= $e($statusInfo['label']) ?>
+                    </span>
+                  </td>
+                  <td class="text-start">
+                    <?php if ($isBookingConfirmed):
+                      $rawDate = (string) ($log['usage_date'] ?? $log['start_time'] ?? '');
+                      $dateIso = $rawDate ? date('Y-m-d', strtotime($rawDate)) : '';
+                      $startTime = !empty($log['start_time']) ? date('H:i', strtotime((string) $log['start_time'])) : '';
+                      $endTime = !empty($log['end_time']) ? date('H:i', strtotime((string) $log['end_time'])) : '';
+                      ?>
+                      <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 btn-edit-booking"
+                          data-bs-toggle="modal" data-bs-target="#bookingModal" data-id="<?= $e($log['id']) ?>"
+                          data-room-id="<?= $e($log['room_id'] ?? '') ?>" data-room-name="<?= $e($log['room'] ?? '') ?>"
+                          data-date="<?= $e($dateIso) ?>" data-start="<?= $e($startTime) ?>" data-end="<?= $e($endTime) ?>"
+                          data-purpose="<?= $e($log['purpose'] ?? '') ?>">
+                          <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" data-bs-toggle="modal"
+                          data-bs-target="#deleteBookingModal" data-id="<?= $e($log['id']) ?>"
+                          data-room-name="<?= $e($log['room'] ?? '') ?>" data-date="<?= $e($dateIso) ?>"
+                          data-time="<?= $e($startTime . ' - ' . $endTime) ?>">
+                          Batalkan
+                        </button>
+                      </div>
+                    <?php else: ?>
+                      <span class="text-muted">-</span>
+                    <?php endif; ?>
+                  </td>
                 </tr>
-              <?php else: ?>
-                <?php foreach ($logs as $log):
-                  $source = (string) ($log['source'] ?? 'other');
-                  $badge = $sourceBadge[$source] ?? $sourceBadge['other'];
-                  $ongoing = $isTrue($log['is_ongoing'] ?? false);
-                  $detail = ($source === 'schedule')
-                    ? implode(' • ', array_filter([$log['course'] ?? '', $log['lecturer'] ?? '']))
-                    : ($log['purpose'] ?? '-');
-                  $actorSub = $log['classroom'] ?? ($log['user_role'] ?? '');
-                  ?>
-                  <tr class="log-row" data-source="<?= $e($source) ?>" data-room="<?= $e($log['room'] ?? '') ?>">
-                    <td>
-                      <strong><?= $e($formatDate($log['usage_date'] ?? $log['start_time'])) ?></strong>
-                      <small class="text-muted d-block"><?= $e($formatTime($log['start_time'])) ?> -
-                        <?= $e($formatTime($log['end_time'])) ?></small>
-                    </td>
-                    <td>
-                      <?= $e($log['room'] ?? '-') ?>
-                      <small class="text-muted d-block"><?= $e($log['building'] ?? '') ?></small>
-                    </td>
-                    <td>
-                      <span class="badge <?= $badge['class'] ?>"><?= $badge['label'] ?></span>
-                    </td>
-                    <td>
-                      <?= $e($log['user_name'] ?? '-') ?>
-                      <?php if (!empty($actorSub)): ?>
-                        <small class="text-muted d-block"><?= $e($actorSub) ?></small>
-                      <?php endif; ?>
-                    </td>
-                    <td><?= $e($detail !== '' ? $detail : '-') ?></td>
-                    <td>
-                      <span
-                        class="badge <?= $ongoing ? 'bg-warning-subtle text-warning' : 'bg-secondary-subtle text-secondary' ?>">
-                        <?= $ongoing ? 'Berlangsung' : 'Selesai' ?>
-                      </span>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              <?php endif; ?>
+              <?php endforeach; ?>
             </tbody>
           </table>
-        </div>
-
-        <!-- Pagination: Info & Tombol Navigasi -->
-        <div class="log-pagination-wrap" id="logPagination">
-          <div class="pagination-info" id="logPaginationInfo"></div>
-          <nav class="room-pagination" id="roomPaginationNav"></nav>
         </div>
       </div>
     </div>
   </section>
 </main>
 
-<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="assets/js/user/riwayat.js"></script>

@@ -275,9 +275,9 @@ require_once __DIR__ . '/../components/navbar.php';
                 <a href="#" class="btn-card-detail" data-bs-toggle="modal" data-bs-target="#modalRoomDetail">
                   <span>Lihat Detail</span><span class="btn-card-arrow">&rsaquo;</span>
                 </a>
-                  <!-- Booking Ruangan -->
+                <!-- Booking Ruangan -->
                 <?php if ($status === 'kosong'): ?>
-                  <button type="button" class="btn-card-action" data-action="borrow-room">
+                  <button type="button" class="btn-card-action" data-bs-toggle="modal" data-bs-target="#bookingModal">
                     <span>Pinjam Ruangan</span><span class="btn-card-arrow">&rsaquo;</span>
                   </button>
                 <?php else: ?>

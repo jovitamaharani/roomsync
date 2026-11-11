@@ -1,171 +1,87 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('logSearchKeyword');
-    const typeSelect = document.getElementById('logFilterType');
-    const roomSelect = document.getElementById('logFilterRoom');
-    const allRows = Array.from(document.querySelectorAll('#auditLogTableBody tr.log-row'));
-    const paginationNav = document.getElementById('roomPaginationNav');
-    const paginationInfo = document.getElementById('logPaginationInfo');
-    const tableBody = document.getElementById('auditLogTableBody');
-
-    const pageSize = 10;
-    let currentPage = 1;
-    let filteredRows = [...allRows];
+$(document).ready(function () {
+    const $table = $('#userOccupancyTable');
+    if (!$table.length) return;
 
     // 1. Inisialisasi Select2
-    if (window.jQuery && $.fn.select2) {
-        // Dropdown Jenis Aktivitas
+    if ($.fn.select2) {
         $('#logFilterType').select2({
+            theme: 'bootstrap-5',
             width: '100%',
-            minimumResultsForSearch: Infinity,
-            placeholder: {
-                id: 'ALL',
-                text: 'Semua Jenis Riwayat'
-            },
-            allowClear: true
+            placeholder: 'Pilih Jenis Riwayat',
+            allowClear: true,
+            minimumResultsForSearch: Infinity
         });
 
-        // Dropdown Ruangan 
         $('#logFilterRoom').select2({
+            theme: 'bootstrap-5',
             width: '100%',
-            placeholder: {
-                id: 'ALL',
-                text: 'Semua Ruangan'
-            },
+            placeholder: 'Pilih Ruangan',    
             allowClear: true
         });
-
-        // Trigger filter saat Select2 berubah atau di-clear
-        $('#logFilterType, #logFilterRoom').on('change select2:clear', function () {
-            filterAndPaginate();
-        });
     }
 
-    // 2. Logika Filter Data
-    function filterAndPaginate() {
-        const keyword = (searchInput ? searchInput.value : '').toLowerCase().trim();
-        const selectedType = typeSelect ? typeSelect.value : 'ALL';
-        const selectedRoom = (roomSelect ? roomSelect.value : 'ALL').toLowerCase().trim();
-
-        filteredRows = allRows.filter(row => {
-            const text = row.innerText.toLowerCase();
-            const source = (row.getAttribute('data-source') || '').toLowerCase().trim();
-            const room = (row.getAttribute('data-room') || '').toLowerCase().trim();
-
-            const matchKeyword = !keyword || text.includes(keyword);
-            const matchType = (selectedType === 'ALL') || (source === selectedType.toLowerCase());
-            const matchRoom = (selectedRoom === 'all') || (room === selectedRoom);
-
-            return matchKeyword && matchType && matchRoom;
-        });
-
-        currentPage = 1;
-        renderView();
-    }
-
-    // 3. Render Baris & Info Pagination
-    function renderView() {
-        allRows.forEach(row => row.style.display = 'none');
-
-        const existingNoData = document.getElementById('noDataRow');
-        if (existingNoData) existingNoData.remove();
-
-        const totalItems = filteredRows.length;
-        const totalPages = Math.ceil(totalItems / pageSize);
-
-        if (totalItems === 0) {
-            const noData = document.createElement('tr');
-            noData.id = 'noDataRow';
-            noData.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">Tidak ada riwayat aktivitas yang cocok dengan filter.</td>';
-            tableBody.appendChild(noData);
-            if (paginationNav) paginationNav.innerHTML = '';
-            if (paginationInfo) paginationInfo.innerText = 'Showing 0 to 0 of 0 entries';
-            return;
-        }
-
-        const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, totalItems);
-        const pageRows = filteredRows.slice(start, end);
-        pageRows.forEach(row => row.style.display = '');
-
-        // Tampilkan Info Pagination
-        if (paginationInfo) {
-            paginationInfo.innerText = `Showing ${start + 1} to ${end} of ${totalItems} entries`;
-        }
-
-        renderPagination(totalPages);
-    }
-
-    // 4. Render Tombol Navigasi Pagination
-    function renderPagination(totalPages) {
-        if (!paginationNav) return;
-        paginationNav.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        // Tombol Sebelumnya
-        const prevBtn = document.createElement('button');
-        prevBtn.type = 'button';
-        prevBtn.className = 'pagination-button';
-        prevBtn.innerText = 'Sebelumnya';
-        prevBtn.disabled = (currentPage === 1);
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                renderView();
+    // 2. Inisialisasi DataTables
+    const table = $table.DataTable({
+        pageLength: 10,
+        order: [[0, 'desc']],
+        columnDefs: [
+            { targets: 6, orderable: false, searchable: false }
+        ],
+        dom: '<"table-responsive"t><"d-flex justify-content-between align-items-center mt-3"ip>',
+        language: {
+            emptyTable: "Belum ada riwayat penggunaan ruangan pada periode ini.",
+            zeroRecords: "Tidak ada riwayat aktivitas yang cocok dengan filter.",
+            info: 'Menampilkan _START_–_END_ dari _TOTAL_ riwayat',
+            infoEmpty: "",
+            infoFiltered: "",
+            paginate: {
+                previous: "Sebelumnya",
+                next: "Berikutnya"
             }
-        });
-        paginationNav.appendChild(prevBtn);
-
-        // Nomor Halaman
-        for (let i = 1; i <= totalPages; i++) {
-            const pageBtn = document.createElement('button');
-            pageBtn.type = 'button';
-            pageBtn.className = 'pagination-button' + (i === currentPage ? ' active' : '');
-            pageBtn.innerText = i;
-            pageBtn.addEventListener('click', () => {
-                currentPage = i;
-                renderView();
-            });
-            paginationNav.appendChild(pageBtn);
         }
+    });
 
-        // Tombol Berikutnya
-        const nextBtn = document.createElement('button');
-        nextBtn.type = 'button';
-        nextBtn.className = 'pagination-button';
-        nextBtn.innerText = 'Berikutnya';
-        nextBtn.disabled = (currentPage === totalPages);
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderView();
-            }
-        });
-        paginationNav.appendChild(nextBtn);
-    }
+    // 3. Pencarian Kata Kunci Global
+    $('#logSearchKeyword').on('input', function () {
+        table.search(this.value).draw();
+    });
 
-    // Event listener input keyword
-    if (searchInput) {
-        searchInput.addEventListener('input', filterAndPaginate);
-    }
+    // 4. Filter Jenis Transaksi (Kolom 2)
+    $('#logFilterType').on('change', function () {
+        const val = $(this).val();
+        if (!val || val === 'ALL') {
+            table.column(2).search('').draw();
+        } else {
+            const labelMap = {
+                'booking': 'Peminjaman',
+                'schedule': 'Jadwal Kuliah',
+                'bubar': 'Bubar Kelas',
+                'other': 'Lainnya'
+            };
+            table.column(2).search(labelMap[val] || val).draw();
+        }
+    });
 
-    // Jalankan pertama kali saat halaman dibuka
-    filterAndPaginate();
+    // 5. Filter Ruangan (Kolom 1)
+    $('#logFilterRoom').on('change', function () {
+        const val = $(this).val();
+        if (!val || val === 'ALL') {
+            table.column(1).search('').draw();
+        } else {
+            table.column(1).search(val).draw();
+        }
+    });
 
-    const btnReset = document.getElementById('btnResetFilter');
-
-    if (btnReset) {
-        btnReset.addEventListener('click', function () {
-            if (searchInput) searchInput.value = '';
-
-            if (window.jQuery && $.fn.select2) {
-                $('#logFilterType').val('ALL').trigger('change.select2');
-                $('#logFilterRoom').val('ALL').trigger('change.select2');
-            } else {
-                if (typeSelect) typeSelect.value = 'ALL';
-                if (roomSelect) roomSelect.value = 'ALL';
-            }
-
-            filterAndPaginate();
-        });
-    }
+    // 6. Tombol Reset Filter
+    $('#btnResetFilter').on('click', function () {
+        $('#logSearchKeyword').val('');
+        if ($.fn.select2) {
+            $('#logFilterType').val('ALL').trigger('change.select2');
+            $('#logFilterRoom').val('ALL').trigger('change.select2');
+        } else {
+            $('#logFilterType').val('ALL');
+            $('#logFilterRoom').val('ALL');
+        }
+        table.search('').columns().search('').draw();
+    });
 });
