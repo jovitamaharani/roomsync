@@ -73,7 +73,7 @@ class StudentClassController
         $classes       = $this->classModel->getAll();
         $academicYears = $this->classModel->getAcademicYears();
         $canAdd        = !empty($academicYears);
-        require_once __DIR__ . "/../Views/user/student_class/index.php";
+        require_once __DIR__ . "/../Views/admin/student_class/index.php";
     }
 
     public function store()

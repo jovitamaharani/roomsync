@@ -159,8 +159,20 @@ $emptyMsg = (int) date('N') >= 6
               <?php endforeach; ?>
             </tbody>
           </table>
+          </thead>
+          <tbody id="masterScheduleTableBody"></tbody>
+          </table>
+        </div>
+        <div class="schedule-pagination-wrap" id="schedulePagination">
+          <nav class="room-pagination">
+            <button type="button" class="pagination-button" disabled>Sebelumnya</button>
+            <button type="button" class="pagination-button active">1</button>
+            <button type="button" class="pagination-button">2</button>
+            <button type="button" class="pagination-button">Berikutnya</button>
+          </nav>
         </div>
       </div>
+    </div>
 
     </div>
   </section>
@@ -173,6 +185,7 @@ $emptyMsg = (int) date('N') >= 6
 
     var table = $('#masterScheduleTable').DataTable({
       dom: 't<"schedule-dt-footer"ip>',
+      paging: false,
       pageLength: 10,
       order: [[0, 'asc']],
       autoWidth: false,
@@ -182,7 +195,6 @@ $emptyMsg = (int) date('N') >= 6
         info: 'Menampilkan _START_–_END_ dari _TOTAL_ jadwal',
         infoEmpty: 'Tidak ada jadwal',
         infoFiltered: '(disaring dari _MAX_ jadwal)',
-        paginate: { first: '«', previous: '‹ Sebelumnya', next: 'Berikutnya ›', last: '»' }
       }
     });
 

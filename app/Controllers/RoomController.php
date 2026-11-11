@@ -2,25 +2,32 @@
 require_once __DIR__ . "/../../config/database.php";
 require_once __DIR__ . "/../Models/Room.php";
 
-class RoomController{
+class RoomController
+{
     private $roomModel;
+    private const IMAGE_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    private const UPLOAD_DIR = 'public/image/';
+    private const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 
-    public function __construct(){
+    public function __construct()
+    {
         Auth::requireRole(['Admin']);
         $db = (new Database())->getConnection();
         $this->roomModel = new Room($db);
     }
 
-    private function redirect($type = null, $message = null) {
+    private function redirect($type = null, $message = null)
+    {
         if ($type && $message) {
             $_SESSION['flash'] = ['type' => $type, 'message' => $message];
         }
         header("Location: index.php?controller=room&action=index");
         exit;
     }
-    private function backToForm($action, $message, $id = null){
+    private function backToForm($action, $message, $id = null)
+    {
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
-        $url = "index.php?controller=room&action=" . $action;
+        $url = "index.php?controller=rooms&action=" . $action;
         if ($id) {
             $url .= "&id=" . urlencode($id);
         }
@@ -28,13 +35,16 @@ class RoomController{
         exit;
     }
 
-    private function isUuid($id) {
+    private function isUuid($id)
+    {
         return is_string($id) && preg_match(
-            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $id
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+            $id
         ) === 1;
     }
 
-    private function collect() {
+    private function collect()
+    {
         return [
             'name' => trim($_POST['name'] ?? ''),
             'building' => trim($_POST['building'] ?? ''),
@@ -47,7 +57,8 @@ class RoomController{
         ];
     }
 
-    private function validate(array $d) {
+    private function validate(array $d)
+    {
         if ($d['name'] === '' || mb_strlen($d['name']) > 100) {
             return "Nama ruangan wajib diisi";
         }
@@ -72,7 +83,8 @@ class RoomController{
         return null;
     }
 
-    private function dbErrorMessage(PDOException $e) {
+    private function dbErrorMessage(PDOException $e)
+    {
         $messages = [
             '23505' => 'ruangan dengan nama itu sudah ada',
             '23514' => 'kapasitas, kursi, dan meja tidak boleh negatif',
@@ -81,41 +93,47 @@ class RoomController{
         return $messages[$e->getCode()] ?? null;
     }
 
-    public function index() {
+    public function index()
+    {
         $rooms = $this->roomModel->getAll();
-        require_once __DIR__ . "/../Views/user/room/index.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function create() {
+    public function create()
+    {
         $values = $_SESSION['old'] ?? ['is_active' => true, 'chairs' => 0, 'tables' => 0];
         unset($_SESSION['old']);
 
         $title = "Tambah Ruangan";
-        $action = "index.php?controller=room&action=store";
+        $action = "index.php?controller=rooms&action=store";
         $submitLabel = "Simpan";
         $formId = null;
-        require_once __DIR__ . "/../Views/user/room/create.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function store() {
+    public function store()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect();
         }
+        $this->guardPostSize();
 
         $data = $this->collect();
-        $_SESSION['old'] = $data;
-
         if ($error = $this->validate($data)) {
-            $this->backToForm('create', $error);
+            $this->fail($error, $data, 'add');
+        }
+
+        [$image, $imageError] = $this->saveImage($_FILES['image']??[]);
+        if($imageError){
+            $this->fail($imageError, $data, 'add');
         }
 
         try {
             $this->roomModel->create($data);
-            unset($_SESSION['old']);
-            $this->redirect('success', 'berhasil ditambahkan');
+            $this->redirect('success', 'Ruangan berhasil ditambahkan.');
         } catch (PDOException $e) {
             if ($message = $this->dbErrorMessage($e)) {
-                $this->backToForm('create', $message);
+                $this->fail($message, $data, 'add');
             }
             throw $e;
         }
@@ -132,59 +150,144 @@ class RoomController{
         unset($_SESSION['old']);
 
         $title = "Edit Ruangan";
-        $action = "index.php?controller=room&action=update";
+        $action = "index.php?controller=rooms&action=update";
         $submitLabel = "Update";
         $formId = $room['id'];
-        require_once __DIR__ . "/../Views/user/room/edit.php";
+        require_once __DIR__ . "/../Views/admin/rooms/index.php";
     }
 
-    public function update()
-    {
+    public function update(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect();
         }
+
+        $this->guardPostSize();
 
         $id = $_POST['id'] ?? '';
         if (!$this->isUuid($id)) {
             $this->redirect('error', 'ID tidak valid.');
         }
 
+        $current = $this->roomModel->getById($id);
+        if(!$current){
+            $this->redirect('error', 'Data tidak ditemukan');
+        }
+        $currentImage = $current['image_path']??null;
+
         $data = $this->collect();
-        $_SESSION['old'] = $data;
+        $old = ['id' => $id, 'image_path' => $currentImage] + $data;
 
         if ($error = $this->validate($data)) {
-            $this->backToForm('edit', $error, $id);
+            $this->fail($error, $old, 'edit');
+        }
+
+        [$newImage, $imageError] = $this->saveImage($_FILES['image']);
+        if($error = $this->validate($data)){
+            $this->fail($error, $old, 'edit');
+        }
+
+        // File baru menggantikan yang lama; centang "hapus foto" mengosongkannya; selain itu dibiarkan
+        $imagePath = $currentImage;
+        if ($newImage) {
+            $imagePath = $newImage;
+        } elseif (isset($_POST['remove_image'])) {
+            $imagePath = null;
         }
 
         try {
             if (!$this->roomModel->update($id, $data)) {
-                unset($_SESSION['old']);
-                $this->redirect('error', 'data tidak ditemukan');
+                $this->redirect('error', 'Data tidak ditemukan.');
             }
-            unset($_SESSION['old']);
-            $this->redirect('success', 'berhasil diperbarui');
+            $this->redirect('success', 'Ruangan berhasil diperbarui.');
         } catch (PDOException $e) {
             if ($message = $this->dbErrorMessage($e)) {
-                $this->backToForm('edit', $message, $id);
+                $this->fail($message, $old, 'edit');
             }
             throw $e;
         }
     }
 
-    public function delete($id) {
+    public function delete($id = null)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('error', 'Permintaan tidak valid.');
+        }
+
+        $id = $_POST['id'] ?? $id;
         if (!$this->isUuid($id)) {
             $this->redirect('error', 'ID tidak valid.');
         }
+
         try {
             if (!$this->roomModel->delete($id)) {
-                $this->redirect('error', 'data tidak ditemukan');
+                $this->redirect('error', 'Data tidak ditemukan.');
             }
-            $this->redirect('success', 'berhasil dihapus.');
+            $this->deleteImageFile($room['image_path']??null);
+            $this->redirect('success', 'Ruangan berhasil dihapus.');
         } catch (PDOException $e) {
             if ($e->getCode() === '23503') {
-                $this->redirect('error', 'Ruangan sudah dipakai oleh jadwal atau peminjaman dan tidak bisa dihapus');
+                $this->redirect('error', 'Ruangan sudah dipakai oleh jadwal atau peminjaman dan tidak bisa dihapus. Nonaktifkan lewat menu Edit.');
             }
             throw $e;
+        }
+    }
+    private function fail($message, array $data, $modal)
+    {
+        $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
+        $_SESSION['old'] = ['modal' => $modal, 'data' => $data];
+        header("Location: index.php?controller=room&action=index");
+        exit;
+    }
+
+    private function saveImage(array $file)
+    {
+        $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+
+        if ($error === UPLOAD_ERR_NO_FILE) {
+            return [null, null];                       // tidak ada file yang dipilih
+        }
+        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+            return [null, 'Ukuran gambar terlalu besar (maksimal 2 MB).'];
+        }
+        if ($error !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+            return [null, 'Gagal mengunggah gambar.'];
+        }
+        if ($file['size'] > self::MAX_IMAGE_BYTES) {
+            return [null, 'Ukuran gambar terlalu besar (maksimal 2 MB).'];
+        }
+
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        if (!isset(self::IMAGE_TYPES[$mime]) || @getimagesize($file['tmp_name']) === false) {
+            return [null, 'Format gambar harus JPG, PNG, atau WebP.'];
+        }
+
+        $dir = __DIR__ . '/../../' . self::UPLOAD_DIR;
+        if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+            return [null, 'Folder penyimpanan gambar tidak bisa dibuat.'];
+        }
+
+        $name = bin2hex(random_bytes(16)) . '.' . self::IMAGE_TYPES[$mime];
+        if (!move_uploaded_file($file['tmp_name'], $dir . $name)) {
+            return [null, 'Gagal menyimpan gambar.'];
+        }
+        return [self::UPLOAD_DIR . $name, null];
+    }
+
+    private function guardPostSize()
+    {
+        if (empty($_POST) && empty($_FILES) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+            $this->redirect('error', 'Data yang dikirim melebihi batas server. Gunakan gambar yang lebih kecil (maksimal 2 MB).');
+        }
+    }
+
+    private function deleteImageFile($path)
+    {
+        if (!$path || !preg_match('#^' . preg_quote(self::UPLOAD_DIR, '#') . '[a-f0-9]{32}\.(jpg|png|webp)$#', $path)) {
+            return;
+        }
+        $full = __DIR__ . '/../../' . $path;
+        if (is_file($full)) {
+            @unlink($full);
         }
     }
 }

@@ -12,7 +12,7 @@ require_once __DIR__ . '/../components/navbar.php';
     <div class="subpage-header">
       <div class="subpage-header-container">
         <div class="subpage-title-group">
-          <a href="#" class="back-link" onclick="app.navigate('dashboard'); return false;">? Kembali ke Ruang Kelas</a>
+          <a href="#" class="back-link" onclick="app.navigate('dashboard'); return false;">Kembali ke Ruang Kelas</a>
           <h1>Activity Control</h1>
           <p>Isi jurnal aktivitas berdasarkan jadwal kelas hari ini.</p>
         </div>
@@ -21,7 +21,7 @@ require_once __DIR__ . '/../components/navbar.php';
     <div class="subpage-container activity-page-container">
       <div class="activity-page-panel">
         <div class="activity-form-heading">
-          <h2 id="reportModalRoomTitle">Activity Control Ã‚Â· RT 02</h2>
+          <h2 id="reportModalRoomTitle">Activity Control RT 02</h2>
         </div>
         <form id="activityReportForm" onsubmit="app.handleActivityFormSubmit(event)">
           <div class="activity-form-body">
