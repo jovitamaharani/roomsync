@@ -13,7 +13,7 @@ require_once __DIR__ . '/../components/navbar.php';
         <div class="subpage-header-container">
           <div class="subpage-title-group">
             <h1 class="hero-title">Riwayat & Log Okupansi Ruang<br>(Append-Only)</h1>
-            <p class="hero-subtitle">Rekapitulasi riwayat pengisian laporan ketua kelas, eksekusi bubar kelas, peminjaman mahasiswa, dan audit utilisasi.</p>
+            <p class="hero-subtitle">Rekapitulasi riwayat pengisian laporan ketua kelas, eksekusi bubar kelas, peminjaman mahasiswa, dan audit utilisasi.</p><br>
           </div>
         </div>
       </div>
@@ -76,10 +76,10 @@ require_once __DIR__ . '/../components/navbar.php';
           </div>
           <div class="log-pagination-wrap" id="logPagination">
             <nav class="room-pagination">
-              <button type="button" class="pagination-button" disabled>Ã¢â‚¬Â¹ Sebelumnya</button>
+              <button type="button" class="pagination-button" disabled>Sebelumnya</button>
               <button type="button" class="pagination-button active">1</button>
               <button type="button" class="pagination-button">2</button>
-              <button type="button" class="pagination-button">Berikutnya Ã¢â‚¬Âº</button>
+              <button type="button" class="pagination-button">Berikutnya</button>
             </nav>
           </div>
         </div>

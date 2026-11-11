@@ -14,7 +14,6 @@ $dbError = $dbError ?? null;
 
 $isTrue = static fn($v): bool => in_array($v, [true, 't', 'true', 1, '1'], true);
 
-// Penentuan status:
 $computeStatus = static function (array $s) use ($isTrue): string {
   if (!empty($s['exception_type']))
     return 'Ada Pengecualian';
@@ -39,7 +38,6 @@ $statusClass = [
   'Ada Pengecualian' => 'is-ubah',
 ];
 
-// Opsi dropdown: dari master data (semua ruang aktif / semua kelas tahun ajaran aktif),
 $fromSchedules = static function (string $key) use ($schedules): array {
   $v = array_values(array_unique(array_filter(array_column($schedules, $key))));
   natsort($v);
@@ -48,16 +46,38 @@ $fromSchedules = static function (string $key) use ($schedules): array {
 $roomOptions = !empty($filterOptions['rooms']) ? $filterOptions['rooms'] : $fromSchedules('room');
 $classOptions = !empty($filterOptions['classes']) ? $filterOptions['classes'] : $fromSchedules('classroom');
 
+$normalize = static fn(string $v): string => strtolower(preg_replace('/[^a-z0-9]/i', '', $v));
+
+$initialRoom = '';
+$roomNotFound = false;
+$roomParam = $_GET['room'] ?? '';
+$roomParam = is_string($roomParam) ? trim($roomParam) : '';
+
+if ($roomParam !== '') {
+  foreach ($roomOptions as $opt) {
+    if (strcasecmp((string) $opt, $roomParam) === 0) {
+      $initialRoom = (string) $opt;
+      break;
+    }
+  }
+  if ($initialRoom === '' && $normalize($roomParam) !== '') {
+    foreach ($roomOptions as $opt) {
+      if ($normalize((string) $opt) === $normalize($roomParam)) {
+        $initialRoom = (string) $opt;
+        break;
+      }
+    }
+  }
+  $roomNotFound = $initialRoom === '';
+}
+
 $hariNama = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 $namaHari = $hariNama[(int) date('N') - 1];
 
 $emptyMsg = (int) date('N') >= 6
-  ? 'Hari ini ' . $namaHari . ' (akhir pekan), tidak ada perkuliahan. Jadwal hanya   tersedia Senin–Jumat.'
+  ? 'Hari ini ' . $namaHari . ' (akhir pekan), tidak ada perkuliahan. Jadwal hanya tersedia Senin–Jumat.'
   : 'Tidak ada jadwal kuliah hari ini (' . $namaHari . ').';
 ?>
-
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
 
 <main id="mainApp">
   <section id="viewSchedule" class="page-view active">
@@ -74,7 +94,12 @@ $emptyMsg = (int) date('N') >= 6
         <div class="alert alert-warning" role="alert"><?= $e($dbError) ?></div>
       <?php endif; ?>
 
-      <!-- filter -->
+      <?php if ($roomNotFound): ?>
+        <div class="alert alert-warning" role="alert">
+          Ruang "<?= $e($roomParam) ?>" tidak ditemukan. Menampilkan semua ruang.
+        </div>
+      <?php endif; ?>
+
       <div class="filter-controls-panel schedule-filters">
         <div class="filter-header">
           <div class="filter-title-group">
@@ -99,7 +124,8 @@ $emptyMsg = (int) date('N') >= 6
             <select id="scheduleRoomFilter" class="form-select js-searchable-select">
               <option value="">Semua Ruang</option>
               <?php foreach ($roomOptions as $room): ?>
-                <option value="<?= $e($room) ?>"><?= $e($room) ?></option>
+                <option value="<?= $e($room) ?>" <?= (string) $room === $initialRoom ? 'selected' : '' ?>><?= $e($room) ?>
+                </option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -127,9 +153,8 @@ $emptyMsg = (int) date('N') >= 6
         </div>
       </div>
 
-      <!-- jadwal -->
       <div class="table-card schedule-table-card">
-        <div class="table-responsive">
+        <thead class="table-responsive">
           <table id="masterScheduleTable" class="data-table schedule-data-table table" style="width:100%">
             <thead>
               <tr>
@@ -162,26 +187,33 @@ $emptyMsg = (int) date('N') >= 6
               <?php endforeach; ?>
             </tbody>
           </table>
-        </div>
+        </thead>
+        <tbody id="masterScheduleTableBody"></tbody>
+        </table>
       </div>
+      <div class="schedule-pagination-wrap" id="schedulePagination">
+        <nav class="room-pagination">
+          <button type="button" class="pagination-button" disabled>Sebelumnya</button>
+          <button type="button" class="pagination-button active">1</button>
+          <button type="button" class="pagination-button">2</button>
+          <button type="button" class="pagination-button">Berikutnya</button>
+        </nav>
+      </div>
+    </div>
+    </div>
 
     </div>
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var $ = window.jQuery;
     if (!$ || !$.fn.DataTable) return;
 
-    // 6a. Aktifkan DataTables pada tabel
     var table = $('#masterScheduleTable').DataTable({
-      dom: 't<"schedule-dt-footer"ip>',
-      pageLength: 10,
+      dom: 't<"schedule-dt-footer"i>',
+      paging: false,
       order: [[0, 'asc']],
       autoWidth: false,
       language: {
@@ -189,12 +221,10 @@ $emptyMsg = (int) date('N') >= 6
         zeroRecords: 'Tidak ada jadwal yang cocok dengan filter.',
         info: 'Menampilkan _START_–_END_ dari _TOTAL_ jadwal',
         infoEmpty: 'Tidak ada jadwal',
-        infoFiltered: '(disaring dari _MAX_ jadwal)',
-        paginate: { first: '«', previous: '‹', next: '›', last: '»' }
+        infoFiltered: '(disaring dari _MAX_ jadwal)'
       }
     });
 
-    // 6b. Ambil elemen filter
     var el = {
       q: document.getElementById('scheduleSearch'),
       room: document.getElementById('scheduleRoomFilter'),
@@ -203,37 +233,30 @@ $emptyMsg = (int) date('N') >= 6
       reset: document.getElementById('scheduleResetBtn')
     };
 
-    // Ubah teks jadi pola "persis sama" (agar RT 1 tidak ikut cocok dengan RT 10)
     function exact(value) {
       return value ? '^' + value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$' : '';
     }
 
-    // 6c. Terapkan semua filter lalu gambar ulang tabel
     function applyFilters() {
-      table.search(el.q.value);                                     // cari di semua kolom
-      table.column(1).search(exact(el.room.value), true, false);    // kolom 1 = Ruang (persis)
-      table.column(4).search(exact(el.kelas.value), true, false);                       // kolom 4 = Kelas (persis)
-      table.column(5).search(exact(el.status.value), true, false);  // kolom 5 = Status (persis)
+      table.search(el.q.value);
+      table.column(1).search(exact(el.room.value), true, false);
+      table.column(4).search(exact(el.kelas.value), true, false);
+      table.column(5).search(exact(el.status.value), true, false);
       table.draw();
     }
 
-    // 6d. Pasang pemicu: mengetik / memilih dropdown langsung memfilter
     el.q.addEventListener('input', applyFilters);
     el.kelas.addEventListener('change', applyFilters);
     el.room.addEventListener('change', applyFilters);
     el.status.addEventListener('change', applyFilters);
 
-    // 6e. Dropdown Ruang dan Kelas SELALU memakai kotak pencarian (Tom Select),
-    //     berapa pun jumlah opsinya. Dropdown Status tetap dropdown biasa.
     document.querySelectorAll('select.js-searchable-select').forEach(function (sel) {
       if (!window.TomSelect) return;
       new TomSelect(sel, {
-        // <option value=""> ("Semua ...") tidak dimasukkan ke daftar pilihan;
-        // teksnya hanya jadi placeholder, jadi kolom tampak kosong sebelum memilih.
         placeholder: sel.options.length ? sel.options[0].text : '',
-        maxOptions: null,                                  // tampilkan semua opsi, tidak dipotong
-        plugins: { clear_button: { title: 'Hapus pilihan' } }, // tombol x untuk kembali ke "Semua"
-        onChange: applyFilters                             // pilih / hapus -> filter langsung berlaku
+        maxOptions: null,
+        plugins: { clear_button: { title: 'Hapus pilihan' } },
+        onChange: applyFilters
       });
     });
 
@@ -241,12 +264,13 @@ $emptyMsg = (int) date('N') >= 6
       if (sel.tomselect) { sel.tomselect.clear(true); } else { sel.value = ''; }
     }
 
-    // 6f. Tombol Reset: kosongkan semua filter
     el.reset.addEventListener('click', function () {
       el.q.value = '';
       clearSelect(el.room); clearSelect(el.kelas); clearSelect(el.status);
       applyFilters();
     });
+
+    if (el.room.value) { applyFilters(); }
   });
 </script>
 

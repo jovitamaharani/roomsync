@@ -1,5 +1,5 @@
 <?php
-class Room
+class Course
 {
     private $conn;
     private $table = "courses";
@@ -12,43 +12,30 @@ class Room
     public function getAll()
     {
         $stmt = $this->conn->prepare(
-            "SELECT * FROM " . $this->table . " ORDER BY name"
+            "SELECT c.id, c.kode_mk, c.name,
+                    (SELECT count(*) FROM schedules s WHERE s.course_id = c.id) AS schedule_count
+             FROM " . $this->table . " c
+             ORDER BY c.kode_mk"
         );
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById($id)
-    {
-        $stmt = $this->conn->prepare("SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 1");
-        $stmt->bindValue(":id", $id);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    private function params(array $d)
-    {
-        return [
-            ':name' => $d['name'],
-            ':kode_mk' => $d['kode_mk']
-        ];
-    }
-
-    public function create(array $d)
+    public function create($kodeMk, $name)
     {
         $stmt = $this->conn->prepare(
-            "INSERT INTO " . $this->table . " (name, kode_mk) VALUES (:name, :kode_mk) RETURNING id"
+            "INSERT INTO " . $this->table . " (kode_mk, name) VALUES (:kode_mk, :name) RETURNING id"
         );
-        $stmt->execute($this->params($d));
+        $stmt->execute([':kode_mk' => $kodeMk, ':name' => $name]);
         return $stmt->fetchColumn();
     }
 
-    public function update($id, array $d)
+    public function update($id, $kodeMk, $name)
     {
         $stmt = $this->conn->prepare(
             "UPDATE " . $this->table . " SET kode_mk = :kode_mk, name = :name WHERE id = :id"
         );
-        $stmt->execute($this->params($d) + [':id' => $id]);
+        $stmt->execute([':id' => $id, ':kode_mk' => $kodeMk, ':name' => $name]);
         return $stmt->rowCount() > 0;
     }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -45,4 +45,4 @@
         <a href="index.php?controller=room&action=index">Batal</a>
     </form>
 </body>
-</html>
+</html> -->
