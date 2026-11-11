@@ -6,12 +6,14 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../../Config/Database.php';
 require_once __DIR__ . '/../../Models/Room.php';
-require_once __DIR__ . '/../../Models/Schedule.php';          // BARU
+require_once __DIR__ . '/../../Models/Schedule.php';
+require_once __DIR__ . '/../../Models/OccupancyLog.php';
 
 $database = new Database();
 $db = $database->getConnection();
 $roomModel = new Room($db);
-$scheduleModel = new Schedule($db);                            // BARU
+$scheduleModel = new Schedule($db);
+$logModel = new OccupancyLog($db);
 
 $view = $_GET['view'] ?? $_GET['action'] ?? 'rooms';
 if ($view === 'index') {
@@ -38,6 +40,12 @@ switch ($view) {
 
     case 'riwayat':
     case 'history':
+        $from = date('Y-m-d', strtotime('-30 days'));
+        $to = date('Y-m-d', strtotime('+30 days'));
+
+        $logs = $logModel->getHistory($from, $to, null);
+        $rooms = $logModel->getRoomNames();
+
         require_once __DIR__ . '/riwayat/index.php';
         break;
 
