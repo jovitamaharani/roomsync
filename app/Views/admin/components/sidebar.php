@@ -61,7 +61,7 @@ $userHomeUrl = 'index.php?controller=user&view=landing';
             class="side-link <?= $activeAdminPage === 'schedules' ? 'active' : '' ?>">
             <i class="bi bi-calendar3"></i> Jadwal Mata Kuliah
         </a>
-        <a href="<?= adminNavUrl('ocupacy_log') ?>"
+        <a href="<?= adminNavUrl('occupancy_log') ?>"
             class="side-link <?= $activeAdminPage === 'bookings' ? 'active' : '' ?>">
             <i class="bi bi-journal-check"></i> Riwayat Peminjaman
         </a>

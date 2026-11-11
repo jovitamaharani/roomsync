@@ -54,6 +54,9 @@ foreach ($possibleCssPaths as $p) {
         break;
     }
 }
+
+// Helper functions aman
+$e = static fn($v): string => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
 ?>
     <link href="<?= $adminCssPath ?>" rel="stylesheet">
 </head>
