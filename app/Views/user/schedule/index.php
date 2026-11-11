@@ -14,6 +14,30 @@ $dbError = $dbError ?? null;
 
 $isTrue = static fn($v): bool => in_array($v, [true, 't', 'true', 1, '1'], true);
 
+// --- LOGIKA PAGINATION PHP ---
+$perPage = 5;
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($currentPage < 1)
+  $currentPage = 1;
+
+$totalRows = count($schedules);
+$totalPages = (int) ceil($totalRows / $perPage);
+if ($currentPage > $totalPages && $totalPages > 0) {
+  $currentPage = $totalPages;
+}
+
+$offset = ($currentPage - 1) * $perPage;
+
+// Potong array data sesuai halaman yang dipilih
+$pagedSchedules = array_slice($schedules, $offset, $perPage);
+
+// Helper agar link halaman tidak menghapus filter room yang sudah ada di URL
+$buildPageUrl = static function (int $page) {
+  $params = $_GET;
+  $params['page'] = $page;
+  return '?' . http_build_query($params);
+};
+
 $computeStatus = static function (array $s) use ($isTrue): string {
   if (!empty($s['exception_type']))
     return 'Ada Pengecualian';
@@ -78,6 +102,9 @@ $emptyMsg = (int) date('N') >= 6
   ? 'Hari ini ' . $namaHari . ' (akhir pekan), tidak ada perkuliahan. Jadwal hanya tersedia Senin–Jumat.'
   : 'Tidak ada jadwal kuliah hari ini (' . $namaHari . ').';
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 
 <main id="mainApp">
   <section id="viewSchedule" class="page-view active">
@@ -122,9 +149,10 @@ $emptyMsg = (int) date('N') >= 6
           <div class="filter-group">
             <label for="scheduleRoomFilter">Ruang Kelas</label>
             <select id="scheduleRoomFilter" class="form-select js-searchable-select">
-              <option value="">Semua Ruang</option>
+              <option value="">Pilih Ruang</option>
               <?php foreach ($roomOptions as $room): ?>
-                <option value="<?= $e($room) ?>" <?= (string) $room === $initialRoom ? 'selected' : '' ?>><?= $e($room) ?>
+                <option value="<?= $e($room) ?>" <?= (string) $room === $initialRoom ? 'selected' : '' ?>>
+                  <?= $e($room) ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -133,7 +161,7 @@ $emptyMsg = (int) date('N') >= 6
           <div class="filter-group">
             <label for="scheduleClassFilter">Kelas</label>
             <select id="scheduleClassFilter" class="form-select js-searchable-select">
-              <option value="">Semua Kelas</option>
+              <option value="">Pilih Kelas</option>
               <?php foreach ($classOptions as $kelas): ?>
                 <option value="<?= $e($kelas) ?>"><?= $e($kelas) ?></option>
               <?php endforeach; ?>
@@ -154,8 +182,8 @@ $emptyMsg = (int) date('N') >= 6
       </div>
 
       <div class="table-card schedule-table-card">
-        <thead class="table-responsive">
-          <table id="masterScheduleTable" class="data-table schedule-data-table table" style="width:100%">
+        <div class="table-responsive">
+          <table id="masterScheduleTable" class="table" style="width:100%" data-empty-msg="<?= $e($emptyMsg) ?>">
             <thead>
               <tr>
                 <th>Jam Kuliah</th>
@@ -187,91 +215,22 @@ $emptyMsg = (int) date('N') >= 6
               <?php endforeach; ?>
             </tbody>
           </table>
-        </thead>
-        <tbody id="masterScheduleTableBody"></tbody>
-        </table>
+        </div>
+
+        <div class="schedule-pagination-wrap py-3" id="schedulePagination">
+          <nav class="room-pagination d-flex justify-content-center gap-1" id="customPaginationNav">
+            <!-- Tombol dibuat otomatis oleh JS sesuai jumlah data -->
+          </nav>
+        </div>
       </div>
-      <div class="schedule-pagination-wrap" id="schedulePagination">
-        <nav class="room-pagination">
-          <button type="button" class="pagination-button" disabled>Sebelumnya</button>
-          <button type="button" class="pagination-button active">1</button>
-          <button type="button" class="pagination-button">2</button>
-          <button type="button" class="pagination-button">Berikutnya</button>
-        </nav>
-      </div>
-    </div>
     </div>
 
     </div>
   </section>
 </main>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var $ = window.jQuery;
-    if (!$ || !$.fn.DataTable) return;
-
-    var table = $('#masterScheduleTable').DataTable({
-      dom: 't<"schedule-dt-footer"i>',
-      paging: false,
-      order: [[0, 'asc']],
-      autoWidth: false,
-      language: {
-        emptyTable: <?= json_encode($emptyMsg, JSON_UNESCAPED_UNICODE) ?>,
-        zeroRecords: 'Tidak ada jadwal yang cocok dengan filter.',
-        info: 'Menampilkan _START_–_END_ dari _TOTAL_ jadwal',
-        infoEmpty: 'Tidak ada jadwal',
-        infoFiltered: '(disaring dari _MAX_ jadwal)'
-      }
-    });
-
-    var el = {
-      q: document.getElementById('scheduleSearch'),
-      room: document.getElementById('scheduleRoomFilter'),
-      kelas: document.getElementById('scheduleClassFilter'),
-      status: document.getElementById('scheduleStatusFilter'),
-      reset: document.getElementById('scheduleResetBtn')
-    };
-
-    function exact(value) {
-      return value ? '^' + value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$' : '';
-    }
-
-    function applyFilters() {
-      table.search(el.q.value);
-      table.column(1).search(exact(el.room.value), true, false);
-      table.column(4).search(exact(el.kelas.value), true, false);
-      table.column(5).search(exact(el.status.value), true, false);
-      table.draw();
-    }
-
-    el.q.addEventListener('input', applyFilters);
-    el.kelas.addEventListener('change', applyFilters);
-    el.room.addEventListener('change', applyFilters);
-    el.status.addEventListener('change', applyFilters);
-
-    document.querySelectorAll('select.js-searchable-select').forEach(function (sel) {
-      if (!window.TomSelect) return;
-      new TomSelect(sel, {
-        placeholder: sel.options.length ? sel.options[0].text : '',
-        maxOptions: null,
-        plugins: { clear_button: { title: 'Hapus pilihan' } },
-        onChange: applyFilters
-      });
-    });
-
-    function clearSelect(sel) {
-      if (sel.tomselect) { sel.tomselect.clear(true); } else { sel.value = ''; }
-    }
-
-    el.reset.addEventListener('click', function () {
-      el.q.value = '';
-      clearSelect(el.room); clearSelect(el.kelas); clearSelect(el.status);
-      applyFilters();
-    });
-
-    if (el.room.value) { applyFilters(); }
-  });
-</script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="assets/js/user/schedule.js"></script>
 
 <?php require_once __DIR__ . '/../components/footer.php'; ?>
