@@ -32,33 +32,32 @@ class Schedule
         $stmt->bindValue(":room_id", $d['room_id']);
     }
 
-    private function selectJoin()
-    {
-        return "SELECT s.id, s.semester,
-                    s.day_of_week, s.start_time, s.end_time,
-                    s.course_id, co.name AS course,
-                    s.lecturer_id, l.name AS lecturer,
-                    s.student_class_id, sc.name AS classroom,
-                    ay.name AS academic_year,
-                    s.room_id, rm.name AS room
-                FROM " . $this->table . " s
-                JOIN courses co ON co.id = s.course_id
-                JOIN lecturers l ON l.id = s.lecturer_id
-                JOIN student_class sc ON sc.id = s.student_class_id
-                JOIN academic_years ay ON ay.id = sc.academic_year_id
-                JOIN rooms rm ON rm.id = s.room_id";
-    }
-
     public function getAll()
     {
         return $this->fetchAll(
-            $this->selectJoin() . " ORDER BY s.day_of_week ASC, s.start_time ASC, rm.name ASC"
+            "SELECT * FROM vw_schedules ORDER BY day_of_week ASC, start_time ASC, room ASC"
         );
+    }
+
+    public function getToday($semester = null)
+    {
+        $query = "SELECT * FROM vw_today_schedules";
+        if ($semester) {
+            $query .= " WHERE semester = :semester";
+        }
+        $query .= " ORDER BY start_time ASC, room ASC";
+
+        $stmt = $this->conn->prepare($query);
+        if ($semester) {
+            $stmt->bindValue(":semester", $semester);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getById($id)
     {
-        $stmt = $this->conn->prepare($this->selectJoin() . " WHERE s.id = :id LIMIT 1");
+        $stmt = $this->conn->prepare("SELECT * FROM vw_schedules WHERE id = :id LIMIT 1");
         $stmt->bindValue(":id", $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -78,6 +77,27 @@ class Schedule
             ),
             'rooms' => $this->fetchAll("SELECT id, name FROM rooms WHERE is_active = TRUE ORDER BY name"),
         ];
+    }
+
+    public function getFilterOptions()
+    {
+        $rooms = array_column(
+            $this->fetchAll("SELECT name FROM rooms WHERE is_active = TRUE"),
+            'name'
+        );
+        $classes = array_column(
+            $this->fetchAll(
+                "SELECT DISTINCT sc.name
+             FROM student_class sc
+             JOIN academic_years ay ON ay.id = sc.academic_year_id
+             WHERE ay.is_active = TRUE"
+            ),
+            'name'
+        );
+        natsort($rooms);    // "RT 2" sebelum "RT 10"
+        natsort($classes);
+
+        return ['rooms' => array_values($rooms), 'classes' => array_values($classes)];
     }
 
     public function refExists($table, $id)

@@ -109,7 +109,7 @@ class UsersController
         $users = $this->userModel->getAll();
         $options = $this->userModel->getFormOptions();
         $canAdd = !empty($options['roles']);
-        require_once __DIR__ . "/../Views/user/user/index.php";
+        require_once __DIR__ . "/../Views/admin/users/index.php";
     }
 
     public function store()
