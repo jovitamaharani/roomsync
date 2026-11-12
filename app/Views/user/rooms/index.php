@@ -29,7 +29,23 @@ sort($floors);
 
 // ---------- Fungsi bantu ----------
 $esc = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES);
-$todayDow = (int) (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('N');   // 1 = Senin ... 7 = Minggu
+$todayDow = (int) (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('N');
+$nowHm = (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('H:i');   // jam sekarang (WIB)
+
+// Rentang kosong: dari selesai kelas terakhir yang sudah lewat sampai mulai kelas berikutnya
+$freeRange = function (array $sessions) use ($todayDow, $nowHm) {
+  $from = '07:00';   // jam buka, dipakai hanya jika belum ada kelas yang selesai hari ini
+  $until = '17:30';   // jam tutup, dipakai hanya jika tidak ada kelas berikutnya
+  foreach ($sessions as $s) {
+    if ((int) $s['day'] !== $todayDow)
+      continue;
+    if ($s['end'] <= $nowHm && $s['end'] > $from)
+      $from = $s['end'];
+    if ($s['start'] > $nowHm && $s['start'] < $until)
+      $until = $s['start'];
+  }
+  return [$from, $until];
+};
 
 require_once __DIR__ . '/../components/header.php';
 require_once __DIR__ . '/../components/navbar.php';
@@ -221,6 +237,15 @@ require_once __DIR__ . '/../components/navbar.php';
             'is_active' => (bool) ($r['is_active'] ?? true),
             'status' => $status,
             'image_path' => $r['image_path'] ?? null,
+            'room_type' => $r['room_type'] ?? 'Lain-Lain',
+            'current_course' => $r['current_course'] ?? null,
+            'current_lecturer' => $r['current_lecturer'] ?? null,
+            'current_class' => $r['current_class'] ?? null,
+            'current_start' => !empty($r['current_start']) ? substr($r['current_start'], 0, 5) : null,
+            'current_end' => !empty($r['current_end']) ? substr($r['current_end'], 0, 5) : null,
+            'current_purpose' => $r['current_purpose'] ?? null,
+            'free_from' => !empty($r['free_from']) ? substr($r['free_from'], 0, 5) : null,
+            'free_until' => !empty($r['free_until']) ? substr($r['free_until'], 0, 5) : null,
           ], JSON_UNESCAPED_UNICODE), ENT_QUOTES);
           ?>
           <article class="room-card" data-room-id="<?= $esc($r['id']) ?>" data-room="<?= $detailJson ?>"
@@ -247,27 +272,54 @@ require_once __DIR__ . '/../components/navbar.php';
                   <a href="#" data-bs-toggle="modal" data-bs-target="#modalRoomDetail"><?= $esc($r['name']) ?></a>
                 </h3>
                 <div class="room-location">
-                  <?= $esc($r['building']) ?> &middot; Lantai <?= (int) $r['floor'] ?>
+                  <?= $esc($r['building']) ?> &middot; Lantai <?= (int) $r['floor'] ?> &middot; Kapasitas
+                  <?= (int) $r['capacity'] ?> orang
                 </div>
               </div>
+              <?php
+              // "08:00:00" -> "08.00"
+              $fmt = function ($t) {
+                return str_replace(':', '.', substr($t, 0, 5));
+              };
+              ?>
               <div class="card-occupancy-info <?= $esc($status) ?>">
-                Kapasitas <?= (int) $r['capacity'] ?> orang
-
                 <?php if ($status === 'terpakai'): ?>
-                  <div class="mt-2 pt-2 border-top">
-                    <?php if (!empty($r['current_course'])): ?>
-                      <div class="fw-semibold"><?= $esc($r['current_course']) ?></div>
-                      <div class="small"><?= $esc($r['current_lecturer']) ?></div>
-                      <div class="small">
-                        <?= $esc($r['current_class']) ?> ·
-                        <?= $esc(substr($r['current_start'], 0, 5)) ?> - <?= $esc(substr($r['current_end'], 0, 5)) ?>
-                      </div>
-                    <?php elseif (!empty($r['current_purpose'])): ?>
-                      <div class="small">Dipinjam: <?= $esc($r['current_purpose']) ?></div>
-                    <?php else: ?>
-                      <div class="small">Sedang digunakan</div>
-                    <?php endif; ?>
+
+                  <?php if (!empty($r['current_course'])): ?>
+                    <div class="occupancy-title">
+                      <span class="card-status-dot red"></span>
+                      <span>Saat Aktif : <?= $esc($r['current_course']) ?></span>
+                    </div>
+                    <div class="occupancy-detail-sub">
+                      <?= $esc($r['current_lecturer']) ?> • <?= $esc($r['current_class']) ?> •
+                      <?= $esc($fmt($r['current_start'])) ?> - <?= $esc($fmt($r['current_end'])) ?> WIB
+                    </div>
+
+                  <?php elseif (!empty($r['current_purpose'])): ?>
+                    <div class="occupancy-title">
+                      <span class="card-status-dot red"></span>
+                      <span>Saat Aktif : Dipinjam</span>
+                    </div>
+                    <div class="occupancy-detail-sub"><?= $esc($r['current_purpose']) ?></div>
+
+                  <?php else: ?>
+                    <div class="occupancy-title">
+                      <span class="card-status-dot red"></span>
+                      <span>Saat Aktif : Sedang digunakan</span>
+                    </div>
+                  <?php endif; ?>
+
+                <?php elseif ($status === 'kosong'): ?>
+                  <?php
+                  [$from, $until] = $freeRange($roomSchedules[$r['id']] ?? []);
+                  $fmt = function ($t) {
+                    return str_replace(':', '.', substr($t, 0, 5)); };
+                  ?>
+                  <div class="occupancy-title">
+                    <span class="card-status-dot green"></span>
+                    <span>Ruangan Kosong - Siap Digunakan</span>
                   </div>
+                  <div class="occupancy-detail-sub"><?= $esc($fmt($from)) ?> - <?= $esc($fmt($until)) ?> WIB</div>
                 <?php endif; ?>
               </div>
 
@@ -309,64 +361,88 @@ require_once __DIR__ . '/../components/navbar.php';
   </section>
 </main>
 
-<!-- MODAL DETAIL RUANG -->
+<!-- MODAL DETAIL RUANGAN -->
 <div class="modal fade" id="modalRoomDetail" tabindex="-1" aria-labelledby="modalRoomDetailTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 580px;">
     <div class="modal-content">
+
       <div class="modal-header">
-        <h5 class="modal-title" id="modalRoomDetailTitle" data-field="name">Detail Ruangan</h5>
+        <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+          <span class="room-code-badge" data-field="name">-</span>
+          <h5 class="modal-title fs-6 fw-bold mb-0" id="modalRoomDetailTitle" data-field="title">Detail Ruangan</h5>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
 
-      <div class="modal-body">
-        <div class="rounded overflow-hidden border mb-3" style="height: 200px; background: #e8edf4;">
-          <img data-field="image" alt="" class="w-100 h-100 d-none" style="object-fit: cover;">
-          <div data-field="image-placeholder" class="h-100">
-            <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+      <div class="modal-body p-3">
+
+        <!-- Banner status pemakaian -->
+        <div class="room-detail-status-bar kosong" data-field="status-banner">
+          <div class="status-indicator-huge">
+            <span class="indicator-dot"></span>
+            <span class="status-text-large" data-field="status-label">-</span>
+          </div>
+          <div class="status-secondary-info small" data-field="status-text"></div>
+        </div>
+
+        <!-- Foto + kartu info -->
+        <div class="room-meta-grid">
+          <div class="room-img-container">
+            <img data-field="image" alt="" class="d-none">
+            <div data-field="image-placeholder"
+              class="d-flex align-items-center justify-content-center h-100 text-muted" style="background: #e8edf4;">
               <i class="bi bi-door-open" style="font-size: 3rem;"></i>
+            </div>
+            <div class="room-location-tag" data-field="location">-</div>
+          </div>
+
+          <div class="room-quick-specs">
+            <div class="spec-card">
+              <span class="spec-label">Kapasitas Tempat Duduk</span>
+              <span class="spec-value" data-field="capacity">-</span>
+              <span class="spec-desc" data-field="seating"></span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Tipe Ruangan</span>
+              <span class="spec-value" data-field="room-type">-</span>
+              <span class="spec-label">Jurusan Teknologi Informasi</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Jadwal Sesi Ini</span>
+              <span class="spec-value" data-field="session">-</span>
+              <span class="spec-desc" data-field="session-sub"></span>
             </div>
           </div>
         </div>
 
-        <div class="d-flex flex-wrap gap-2 mb-3">
-          <span class="badge text-bg-success" data-field="status">-</span>
-          <span class="badge text-bg-secondary" data-field="active">-</span>
+        <!-- Fasilitas -->
+        <div class="facilities-section">
+          <h4 class="subheading-modal">Fasilitas Ruang Kelas</h4>
+          <div class="facility-badges" data-field="facilities"></div>
         </div>
 
-        <div class="row g-3">
-          <div class="col-6">
-            <div class="small text-muted">Gedung</div>
-            <div class="fw-semibold" data-field="building">-</div>
+        <!-- Jadwal hari ini -->
+        <div class="schedule-timeline-section">
+          <div class="timeline-header">
+            <h4 class="subheading-modal">Jadwal Penggunaan Hari Ini</h4>
+            <span class="timeline-date" data-field="today-date"></span>
           </div>
-          <div class="col-6">
-            <div class="small text-muted">Lantai</div>
-            <div class="fw-semibold" data-field="floor">-</div>
-          </div>
-          <div class="col-6">
-            <div class="small text-muted">Kapasitas</div>
-            <div class="fw-semibold" data-field="capacity">-</div>
-          </div>
-          <div class="col-6">
-            <div class="small text-muted">Jumlah Kursi</div>
-            <div class="fw-semibold" data-field="chairs">-</div>
-          </div>
-          <div class="col-6">
-            <div class="small text-muted">Jumlah Meja</div>
-            <div class="fw-semibold" data-field="tables">-</div>
-          </div>
-          <div class="col-12">
-            <div class="small text-muted mb-1">Fasilitas</div>
-            <div class="d-flex flex-wrap gap-2" data-field="facilities">-</div>
+          <div class="timeline-list" data-field="today-list"></div>
+          <div class="text-end mt-2">
+            <a href="#" class="small fw-semibold text-primary text-decoration-none" role="button" data-bs-toggle="modal"
+              data-bs-target="#modalRoomSchedule">Lihat jadwal seminggu &rsaquo;</a>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRoomSchedule">
-          <i class="bi bi-calendar3 me-1"></i>Cek Jadwal Ruang Ini
+      <div class="modal-footer py-2 px-3">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        <!-- Aksinya diisi oleh anggota lain (modal peminjaman). Hanya tampil kalau ruangan kosong. -->
+        <button type="button" class="btn btn-sm btn-primary" data-action="borrow-room" data-field="borrow">
+          Peminjaman Ruang Sekarang
         </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
       </div>
+
     </div>
   </div>
 </div>

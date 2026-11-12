@@ -22,52 +22,68 @@
       return (trigger && trigger.closest('.room-card')) || activeCard;
     };
     const dash = function (v) { return (v === null || v === undefined || v === '') ? '-' : v; };
+        // Data jadwal mingguan semua ruangan (dari PHP), dipakai modal detail dan modal jadwal
+    let allSchedules = {};
+    try {
+      allSchedules = JSON.parse(document.getElementById('roomSchedulesData').textContent) || {};
+    } catch (e) { /* data kosong atau rusak: modal tetap terbuka tanpa jadwal */ }
 
+    // Hari dan jam sekarang dalam WIB (1 = Senin ... 7 = Minggu; time = "HH:MM")
+    const nowWib = function () {
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Jakarta', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      }).formatToParts(new Date());
+      const get = function (t) { return parts.find(function (p) { return p.type === t; }).value; };
+      return {
+        day: { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }[get('weekday')] || 0,
+        time: get('hour') + ':' + get('minute')
+      };
+    };
+    const todayLabel = function () {
+      return new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).format(new Date());
+    };
+    const el = function (tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+
+    // ---------- Modal detail ruang ----------
     // ---------- Modal detail ruang ----------
     if (detailEl) {
       const field = function (name) { return detailEl.querySelector('[data-field="' + name + '"]'); };
+      const OPEN_TIME = '07:00', CLOSE_TIME = '17:30';   // jam operasional, dipakai bila rentang kosong tidak berujung
 
       detailEl.addEventListener('show.bs.modal', function (event) {
         const card = cardOf(event.relatedTarget);
         if (!card || !card.dataset.room) return;
         activeCard = card;
         const d = JSON.parse(card.dataset.room);
+        const used = d.status === 'terpakai';
+        const type = d.room_type || 'Lain-Lain';
 
         // textContent (bukan innerHTML) agar isi database tidak bisa menyisipkan HTML
+        // Judul
         field('name').textContent = d.name;
-        field('building').textContent = dash(d.building);
-        field('floor').textContent = 'Lantai ' + d.floor;
-        field('capacity').textContent = d.capacity + ' Mahasiswa';
-        field('chairs').textContent = dash(d.chairs);
-        field('tables').textContent = dash(d.tables);
+        field('title').textContent = type + ' - ' + dash(d.building) + ' Lantai ' + d.floor;
 
-        const used = d.status === 'terpakai';
-        const status = field('status');
-        status.textContent = used ? 'Sedang Terpakai' : 'Kosong - Siap Digunakan';
-        status.className = 'badge ' + (used ? 'text-bg-danger' : 'text-bg-success');
+        // Banner status
+        field('status-banner').className = 'room-detail-status-bar ' + (used ? 'terpakai' : 'kosong');
+        field('status-label').textContent = used ? 'TERPAKAI (IN USE)' : 'KOSONG (AVAILABLE)';
+        field('status-text').textContent = used
+          ? (d.current_course ? 'Sedang berlangsung: ' + d.current_course
+            : d.current_purpose ? 'Sedang dipinjam: ' + d.current_purpose
+            : 'Ruangan sedang digunakan.')
+          : 'Ruangan tidak sedang digunakan dan siap dialokasikan.';
 
-        const active = field('active');
-        active.textContent = d.is_active ? 'Ruangan Aktif' : 'Ruangan Nonaktif';
-        active.className = 'badge ' + (d.is_active ? 'text-bg-primary' : 'text-bg-secondary');
+        // Tombol peminjaman hanya untuk ruangan kosong
+        field('borrow').classList.toggle('d-none', used);
 
-        // Fasilitas dipecah per koma menjadi badge; "-" berarti kosong
-        const box = field('facilities');
-        box.replaceChildren();
-        const items = (d.facilities || '').split(',')
-          .map(function (s) { return s.trim(); })
-          .filter(function (s) { return s && s !== '-'; });
-        if (items.length === 0) {
-          box.textContent = '-';
-        } else {
-          items.forEach(function (text) {
-            const badge = document.createElement('span');
-            badge.className = 'badge text-bg-light border';
-            badge.textContent = text;
-            box.appendChild(badge);
-          });
-        }
-
-        // Foto
+        // Foto + keterangan lokasi
+        field('location').textContent = dash(d.building) + ' · Lantai ' + d.floor;
         const img = field('image');
         const placeholder = field('image-placeholder');
         if (d.image_path) {
@@ -79,6 +95,74 @@
           img.removeAttribute('src');
           img.classList.add('d-none');
           placeholder.classList.remove('d-none');
+        }
+
+        // Kartu info
+        field('capacity').textContent = d.capacity + ' Mahasiswa';
+        field('seating').textContent = [
+          d.chairs !== null && d.chairs !== undefined ? d.chairs + ' kursi' : '',
+          d.tables !== null && d.tables !== undefined ? d.tables + ' meja' : ''
+        ].filter(Boolean).join(' · ');
+        field('room-type').textContent = type;
+
+        const sessionValue = field('session');
+        const sessionSub = field('session-sub');
+        if (used && d.current_course) {
+          sessionValue.textContent = d.current_course;
+          sessionSub.textContent = [d.current_lecturer, d.current_class,
+            (d.current_start || '') + ' - ' + (d.current_end || '') + ' WIB'].filter(Boolean).join(' • ');
+        } else if (used) {
+          sessionValue.textContent = d.current_purpose ? 'Dipinjam' : 'Sedang Digunakan';
+          sessionSub.textContent = d.current_purpose || '';
+        } else {
+          sessionValue.textContent = 'Tidak Ada Sesi Aktif';
+          sessionSub.textContent = (d.free_from || OPEN_TIME) + ' - ' + (d.free_until || CLOSE_TIME) + ' WIB' + '  |  ' + 'Tersedia untuk booking';
+        }
+        sessionSub.title = sessionSub.textContent;   // teks panjang dipotong "..." oleh CSS; isi lengkap tampil saat kursor diarahkan
+
+        // Fasilitas: dipecah per koma; "-" berarti kosong
+        const chips = field('facilities');
+        chips.replaceChildren();
+        const items = (d.facilities || '').split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(function (t) { return t && t !== '-'; });
+        if (items.length === 0) {
+          chips.appendChild(el('span', 'text-muted', 'Belum ada data fasilitas.'));
+        } else {
+          items.forEach(function (text) {
+            const chip = el('span', 'facility-pill');
+            chip.appendChild(el('i', 'bi bi-check2'));
+            chip.appendChild(el('span', '', text));
+            chips.appendChild(chip);
+          });
+        }
+
+        // Jadwal hari ini (dari jadwal mingguan, WIB)
+        const now = nowWib();
+        field('today-date').textContent = todayLabel();
+        const list = field('today-list');
+        list.replaceChildren();
+        const todays = (allSchedules[card.dataset.roomId] || []).filter(function (s) { return s.day === now.day; });
+        if (todays.length === 0) {
+          list.appendChild(el('div', 'text-center text-muted small py-3', 'Tidak ada jadwal perkuliahan hari ini.'));
+        } else {
+          const label = { done: 'Selesai', live: 'Berlangsung', next: 'Akan Datang' };
+          const badge = { done: 'text-secondary bg-light', live: 'terpakai', next: 'kosong' };
+          todays.forEach(function (s) {
+            const state = now.time >= s.end ? 'done' : (now.time >= s.start ? 'live' : 'next');
+            const row = el('div', 'timeline-item' + (state === 'live' ? ' active-now' : '') + (state === 'done' ? ' opacity-75' : ''));
+            row.appendChild(el('span', 'timeline-time', s.start + ' - ' + s.end));
+
+            const subject = el('div', 'timeline-subject');
+            const title = el('div', 'fw-semibold', s.course + ' ');
+            title.appendChild(el('span', 'fw-normal text-muted', '(' + s.classroom + ')'));
+            subject.appendChild(title);
+            subject.appendChild(el('div', 'text-muted', s.lecturer));
+            row.appendChild(subject);
+
+            row.appendChild(el('span', 'timeline-status ' + badge[state], label[state]));
+            list.appendChild(row);
+          });
         }
       });
     }
@@ -97,10 +181,6 @@
       const DAY_COUNT = 5;   // jadwal hanya Senin-Jumat; ubah ke 7 kalau akhir pekan dipakai
       const TODAY = Number(scheduleEl.dataset.today) || 1;   // 1 = Senin ... 7 = Minggu (dari atribut data-today)
 
-      let allSchedules = {};
-      try {
-        allSchedules = JSON.parse(document.getElementById('roomSchedulesData').textContent) || {};
-      } catch (e) { /* data kosong atau rusak: modal tetap terbuka tanpa jadwal */ }
       let current = [];
 
       function td(text, className) {

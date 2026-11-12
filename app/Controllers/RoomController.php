@@ -29,7 +29,7 @@ class RoomController
     private function backToForm($action, $message, $id = null)
     {
         $_SESSION['flash'] = ['type' => 'error', 'message' => $message];
-        $url = "index.php?controller=rooms&action=" . $action;
+        $url = "index.php?controller=room&action=" . $action;
         if ($id) {
             $url .= "&id=" . urlencode($id);
         }
@@ -107,7 +107,7 @@ class RoomController
         unset($_SESSION['old']);
 
         $title = "Tambah Ruangan";
-        $action = "index.php?controller=rooms&action=store";
+        $action = "index.php?controller=room&action=store";
         $submitLabel = "Simpan";
         $formId = null;
         require_once __DIR__ . "/../Views/admin/rooms/index.php";
@@ -160,7 +160,7 @@ class RoomController
         unset($_SESSION['old']);
 
         $title = "Edit Ruangan";
-        $action = "index.php?controller=rooms&action=update";
+        $action = "index.php?controller=room&action=update";
         $submitLabel = "Update";
         $formId = $room['id'];
         require_once __DIR__ . "/../Views/admin/rooms/index.php";

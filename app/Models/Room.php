@@ -35,6 +35,8 @@ class Room
            cur.start_time AS current_start,
            cur.end_time   AS current_end,
            bk.purpose     AS current_purpose,
+           prv.free_from  AS free_from,
+           nxt.free_until AS free_until,
            CASE WHEN cur.room_id IS NOT NULL OR bk.room_id IS NOT NULL
                 THEN 'terpakai' ELSE 'kosong' END AS status
     FROM rooms r
@@ -52,10 +54,32 @@ class Room
         WHERE b.room_id = r.id
           AND b.date = {$today}
           AND {$time} >= b.start_time AND {$time} < b.end_time
-          AND b.status::text = 'approved'   -- sesuaikan dengan enum status booking
+          AND b.status::text = 'approved'
         ORDER BY b.start_time
         LIMIT 1
     ) bk ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT MAX(x.end_time) AS free_from
+        FROM (
+            SELECT ts.end_time FROM ({$this->todaySchedules}) ts
+            WHERE ts.room_id = r.id AND ts.end_time <= {$time}
+            UNION ALL
+            SELECT b.end_time FROM bookings b
+            WHERE b.room_id = r.id AND b.date = {$today}
+              AND b.status::text = 'approved' AND b.end_time <= {$time}
+        ) x
+    ) prv ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT MIN(y.start_time) AS free_until
+        FROM (
+            SELECT ts.start_time FROM ({$this->todaySchedules}) ts
+            WHERE ts.room_id = r.id AND ts.start_time > {$time}
+            UNION ALL
+            SELECT b.start_time FROM bookings b
+            WHERE b.room_id = r.id AND b.date = {$today}
+              AND b.status::text = 'approved' AND b.start_time > {$time}
+        ) y
+    ) nxt ON TRUE
 )";
 }
 
