@@ -65,7 +65,15 @@ switch ($view) {
         break;
 
     case 'profile':
-        Auth::requireRole(['Admin', 'Mahasiswa']);
+        Auth::requireLogin();
+        require_once __DIR__ . '/../../Models/User.php';
+        $profile = (new User($db))->getProfile(Auth::user()['id']);
+        $_SESSION['user']['photo'] = $profile['photo_path'] ?? null;
+        if (!$profile) {
+            Auth::logout();
+            header('Location: index.php?controller=auth&action=login');
+            exit;
+        }
         require_once __DIR__ . '/profile/index.php';
         break;
 

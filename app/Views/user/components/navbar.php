@@ -24,6 +24,7 @@ $showActivity = !empty($user);
 
 $userName = (string) ($user['name'] ?? 'Pengguna');
 $userInitial = strtoupper(mb_substr($userName, 0, 1)) ?: 'A';
+$userPhoto = (string) ($user['photo'] ?? '');
 $userRole = ucwords(str_replace('_', ' ', (string) ($user['role'] ?? '')));
 $csrfToken = ($user && class_exists('Auth') && method_exists('Auth', 'csrfToken')) ? Auth::csrfToken() : '';
 ?>
@@ -69,11 +70,22 @@ $csrfToken = ($user && class_exists('Auth') && method_exists('Auth', 'csrfToken'
           <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
             <button type="button" class="profile-avatar-btn" id="userProfileBtn" aria-label="Menu Profil"
               aria-haspopup="true" aria-expanded="false" onclick="app.toggleProfileDropdown(event)">
-              <span><?= htmlspecialchars($userInitial) ?></span>
+              <?php if ($userPhoto !== ''): ?>
+                <img src="<?= htmlspecialchars($userPhoto) ?>" alt="<?= htmlspecialchars($userName) ?>"
+                  class="profile-avatar-img">
+              <?php else: ?>
+                <span><?= htmlspecialchars($userInitial) ?></span>
+              <?php endif; ?>
             </button>
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
               <div class="profile-dropdown-header">
-                <div class="profile-header-avatar"><?= htmlspecialchars($userInitial) ?></div>
+                <div class="profile-header-avatar">
+                  <?php if ($userPhoto !== ''): ?>
+                    <img src="<?= htmlspecialchars($userPhoto) ?>" alt="">
+                  <?php else: ?>
+                    <?= htmlspecialchars($userInitial) ?>
+                  <?php endif; ?>
+                </div>
                 <div class="profile-header-info">
                   <strong class="profile-header-name" id="profileDropdownName"><?= htmlspecialchars($userName) ?></strong>
                   <span class="profile-header-role"><?= htmlspecialchars($userRole) ?></span>

@@ -23,7 +23,7 @@ class Room
           AND t.exception_type IS NULL
           AND t.day_of_week = EXTRACT(ISODOW FROM {$now})::int
           AND t.semester::text = CASE
-                WHEN EXTRACT(MONTH FROM {$now}) BETWEEN 2 AND 7 THEN 'Genap'
+                WHEN EXTRACT(MONTH FROM {$now}) BETWEEN 1 AND 6 THEN 'Genap'
                 ELSE 'Ganjil' END
     ";
 

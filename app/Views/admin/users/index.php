@@ -34,6 +34,12 @@ $renderFields = function (bool $forEdit) use ($options, $h) { ?>
             maxlength="150" required>
     </div>
 
+    <!-- NIM -->
+    <div class="mb-3">
+        <label class="form-label">NIM</label>
+        <input type="text" class="form-control" name="nim" inputmode="numeric" maxlength="15" placeholder="Kosongkan untuk non-mahasiswa">
+    </div>
+
     <!-- ROLE DAN KELAS -->
     <div class="row g-3 mb-3">
         <div class="col-md-6">
@@ -162,11 +168,6 @@ include __DIR__ . '/../../admin/components/sidebar.php';
     <!-- NAVBAR -->
     <?php include __DIR__ . '/../../admin/components/navbar.php'; ?>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toastArea"
-        class="toast-container position-fixed top-0 end-0 p-3"
-        style="z-index: 1100;"></div>
-
     <!-- PAGE CONTENT -->
     <section class="page-content">
 
@@ -239,6 +240,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                                     'id' => $item['id'],
                                     'name' => $item['name'],
                                     'email' => $item['email'],
+                                    'nim' => $item['nim'],
                                     'role_id' => $item['role_id'],
                                     'student_class_id' => $item['student_class_id'],
                                 ];
@@ -322,7 +324,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                         aria-label="Tutup"></button>
                 </div>
 
-                <form action="index.php?controller=user&action=store"
+                <form action="index.php?controller=users&action=store"
                     method="POST"
                     autocomplete="off">
 
@@ -368,7 +370,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                         aria-label="Tutup"></button>
                 </div>
 
-                <form action="index.php?controller=user&action=update"
+                <form action="index.php?controller=users&action=update"
                     method="POST"
                     autocomplete="off">
 
@@ -416,7 +418,7 @@ include __DIR__ . '/../../admin/components/sidebar.php';
                         aria-label="Tutup"></button>
                 </div>
 
-                <form action="index.php?controller=user&action=delete"
+                <form action="index.php?controller=users&action=delete"
                     method="POST">
 
                     <input type="hidden" id="hapusUserId" name="id">
