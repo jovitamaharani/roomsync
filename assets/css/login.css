@@ -1,4 +1,7 @@
-/* Pengaturan dasar */
+/* =========================================
+   PENGATURAN DASAR
+========================================= */
+
 * {
     box-sizing: border-box;
 }
@@ -9,7 +12,11 @@ body {
     color: #10286F;
 }
 
-/* Halaman dan kartu login */
+
+/* =========================================
+   HALAMAN DAN KARTU LOGIN
+========================================= */
+
 .login-page {
     min-height: 100vh;
     background-color: #DDE3F8;
@@ -26,7 +33,11 @@ body {
     box-shadow: 0 4px 6px rgba(12, 29, 78, 0.22);
 }
 
-/* Panel identitas RIMORA */
+
+/* =========================================
+   PANEL IDENTITAS RIMORA
+========================================= */
+
 .brand-panel {
     background: linear-gradient(135deg,
             #183DAB 0%,
@@ -62,7 +73,11 @@ body {
     font-size: 9px;
 }
 
-/* Panel form login */
+
+/* =========================================
+   PANEL FORM LOGIN
+========================================= */
+
 .form-panel {
     background-color: #FFFFFF;
 }
@@ -79,7 +94,11 @@ body {
     line-height: 1.5;
 }
 
-/* Label dan input */
+
+/* =========================================
+   LABEL DAN INPUT LOGIN
+========================================= */
+
 .form-panel .form-label {
     margin-bottom: 6px;
     color: #10286F;
@@ -123,7 +142,10 @@ body {
 }
 
 
-/* Toggle Password Login */
+/* =========================================
+   TOGGLE PASSWORD LOGIN
+========================================= */
+
 .password-login-field {
     position: relative;
 }
@@ -175,8 +197,10 @@ body {
 }
 
 
+/* =========================================
+   CHECKBOX DAN TAUTAN LOGIN
+========================================= */
 
-/* Checkbox dan tautan */
 .form-options .form-check {
     margin: 0;
 }
@@ -200,7 +224,11 @@ body {
     text-decoration: underline;
 }
 
-/* Tombol masuk */
+
+/* =========================================
+   TOMBOL MASUK
+========================================= */
+
 .btn-login {
     padding: 11px 16px;
     border: 0;
@@ -217,7 +245,11 @@ body {
     color: #FFFFFF;
 }
 
-/* Tampilan layar kecil */
+
+/* =========================================
+   RESPONSIVE LOGIN
+========================================= */
+
 @media (max-width: 575.98px) {
     .login-card {
         grid-template-columns: 1fr;
@@ -249,5 +281,390 @@ body {
 
     .form-panel h2 {
         font-size: 22px;
+    }
+}
+
+
+/* =========================================
+   FORGOT PASSWORD PAGE
+========================================= */
+
+.password-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 15px;
+    background: #FFFFFF;
+}
+
+.password-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 36px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.08);
+}
+
+.password-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    background: #EDF2FF;
+    color: #10245D;
+    font-size: 23px;
+}
+
+.password-card h1 {
+    margin-bottom: 5px;
+    color: #14264E;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.password-description {
+    margin-bottom: 12px;
+    color: #777777;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.password-description strong {
+    color: #14264E;
+}
+
+.password-card .form-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #14264E;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   INPUT GROUP FORGOT PASSWORD
+========================================= */
+
+.password-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    border: 1px solid #DDDDDD;
+    border-radius: 7px;
+    background: #FFFFFF;
+    overflow: hidden;
+}
+
+.password-input-group:focus-within {
+    border-color: #A5B8FF;
+    box-shadow: 0 0 0 3px rgba(25, 55, 150, 0.08);
+}
+
+.password-input-group .input-icon {
+    width: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9AA9C7;
+    font-size: 16px;
+}
+
+.password-input-group .form-control {
+    min-width: 0;
+    height: 40px;
+    padding: 8px 10px 8px 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    color: #14264E;
+    font-size: 11px;
+}
+
+.password-input-group .form-control::placeholder {
+    color: #9AA9C7;
+    opacity: 1;
+}
+
+.password-eye {
+    width: 38px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #A1A1AA;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.password-eye:hover {
+    color: #64748B;
+}
+
+
+/* =========================================
+   TOMBOL PASSWORD
+========================================= */
+
+.btn-password-primary {
+    width: 100%;
+    min-height: 42px;
+    border: none;
+    border-radius: 6px;
+    background: #101F68;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.2s ease;
+}
+
+.btn-password-primary:hover {
+    background: #1B358E;
+}
+
+
+/* =========================================
+   KONFIRMASI RESET PASSWORD
+========================================= */
+
+.reset-success {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px solid #CBD8FF;
+    border-radius: 6px;
+    background: #F7F9FF;
+}
+
+.success-icon {
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #00A878;
+    border-radius: 50%;
+    color: #00A878;
+    font-size: 15px;
+}
+
+.success-content h2 {
+    margin-bottom: 5px;
+    color: #14264E;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.success-content p {
+    margin-bottom: 10px;
+    color: #333333;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.success-content p strong {
+    color: #14264E;
+}
+
+.success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.success-actions form {
+    margin: 0;
+}
+
+.btn-password-secondary {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid #D9DEEA;
+    border-radius: 5px;
+    background: transparent;
+    color: #14264E;
+    font-size: 9px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-password-secondary:hover {
+    background: #EDF2FF;
+}
+
+
+/* =========================================
+   RESET PASSWORD PAGE
+========================================= */
+
+.reset-password-card {
+    max-width: 420px;
+}
+
+/* Label reset password */
+.reset-password-card .form-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #14264E;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Pembungkus input password */
+.password-reset-field {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Input password */
+.password-reset-field .form-control {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 8px 42px 8px 38px;
+    border: 1px solid #DDDDDD;
+    border-radius: 7px;
+    background: #FFFFFF;
+    color: #14264E;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    box-shadow: none;
+}
+
+/* Placeholder */
+.password-reset-field .form-control::placeholder {
+    color: #9AA9C7;
+    opacity: 1;
+}
+
+/* Posisi icon gembok */
+.password-reset-field .password-lock {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #9AA9C7;
+    pointer-events: none;
+}
+
+.password-reset-field .password-lock i {
+    font-size: 15px;
+}
+
+
+/* Posisi tombol mata */
+.password-reset-field .toggle-reset-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 3;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #9AA9C7;
+    cursor: pointer;
+}
+
+.password-reset-field .toggle-reset-password:hover {
+    color: #10286F;
+}
+
+.password-reset-field .toggle-reset-password .password-eye-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.password-reset-field .toggle-reset-password svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+.password-reset-field .toggle-reset-password i {
+    font-size: 19px;
+}
+
+/* Fokus input */
+.password-reset-field .form-control:focus {
+    border-color: #879DE5;
+    box-shadow: 0 0 0 3px rgba(45, 77, 174, 0.1);
+}
+
+/* Aturan password */
+.reset-password-card .password-rules {
+    margin: 14px 0 18px;
+    padding-left: 16px;
+    color: #AAAAAA;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+/* Tombol simpan reset password */
+.reset-password-card .btn-password-primary {
+    width: 100%;
+    min-height: 42px;
+    border: none;
+    border-radius: 6px;
+    background: #101F68;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.reset-password-card .btn-password-primary:hover {
+    background: #1B358E;
+}
+
+
+/* =========================================
+   RESPONSIVE PASSWORD PAGE
+========================================= */
+
+@media (max-width: 480px) {
+    .password-card {
+        padding: 25px 22px;
+    }
+
+    .password-card h1 {
+        font-size: 20px;
+    }
+
+    .reset-success {
+        padding: 12px;
+    }
+
+    .reset-password-card {
+        max-width: 420px;
     }
 }

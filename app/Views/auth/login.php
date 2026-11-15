@@ -98,7 +98,7 @@ unset($_SESSION['flash'], $_SESSION['old_email']);
                                 Ingat saya
                             </label>
                         </div>
-                        <a href="#" class="forgot-link">
+                        <a href="forgot_password.php" class="forgot-link">
                             Lupa Kata Sandi?
                         </a>
                     </div>
