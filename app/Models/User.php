@@ -12,7 +12,7 @@ class User
     // Dipakai login. Satu-satunya query yang mengambil hash password.
     public function findByEmail($email)
     {
-        $query = "SELECT u.id, u.role_id, u.student_class_id, u.name, u.email, u.photo_path, u.password, r.name as role_name
+        $query = "SELECT u.id, u.role_id, u.student_class_id, u.student_class_id AS class_id, u.name, u.email, u.photo_path, u.password, r.name as role_name
         FROM " . $this->table . " u
         JOIN roles r on r.id = u.role_id
         WHERE u.email = :email
