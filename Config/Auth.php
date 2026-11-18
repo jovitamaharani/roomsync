@@ -29,6 +29,7 @@ class Auth
             'id' => $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
+            'photo' => $user['photo_path'] ?? null,
             'role_id' => $user['role_id'],
             'role' => $user['role_name'],
             'class_id' => $user['class_id'],

@@ -6,16 +6,16 @@ class Room
     private $viewStatus = "vw_room_status";
     private $todaySchedules;
 
- public function __construct($db)
-{
-    $this->conn = $db;
+    public function __construct($db)
+    {
+        $this->conn = $db;
 
-    $now   = "(NOW() AT TIME ZONE 'Asia/Jakarta')";
-    $today = "{$now}::date";
-    $time  = "{$now}::time";
+        $now = "(NOW() AT TIME ZONE 'Asia/Jakarta')";
+        $today = "{$now}::date";
+        $time = "{$now}::time";
 
-    // Jadwal kuliah hari ini yang benar-benar berlangsung, diambil dari vw_today_schedules
-    $this->todaySchedules = "
+        // Jadwal kuliah hari ini yang benar-benar berlangsung, diambil dari vw_today_schedules
+        $this->todaySchedules = "
         SELECT t.room_id, t.course, t.kode_mk, t.lecturer,
                t.classroom AS class_name, t.start_time, t.end_time
         FROM vw_today_schedules t
@@ -23,11 +23,19 @@ class Room
           AND t.exception_type IS NULL
           AND t.day_of_week = EXTRACT(ISODOW FROM {$now})::int
           AND t.semester::text = CASE
-                WHEN EXTRACT(MONTH FROM {$now}) BETWEEN 2 AND 7 THEN 'Genap'
+                WHEN EXTRACT(MONTH FROM {$now}) BETWEEN 1 AND 6 THEN 'Genap'
                 ELSE 'Ganjil' END
+          AND NOT EXISTS (
+    SELECT 1 FROM occupancy_logs ol
+    WHERE ol.schedule_id = t.id
+      AND ol.start_time >= {$today}
+      AND ol.start_time <  {$today} + 1
+      AND ol.end_time IS NOT NULL
+      AND ol.end_time <= {$now}
+)
     ";
 
-    $this->viewStatus = "(
+        $this->viewStatus = "(
     SELECT r.*,
            cur.course     AS current_course,
            cur.lecturer   AS current_lecturer,
@@ -54,7 +62,7 @@ class Room
         WHERE b.room_id = r.id
           AND b.date = {$today}
           AND {$time} >= b.start_time AND {$time} < b.end_time
-          AND b.status::text = 'approved'
+          AND b.status::text = 'confirmed'
         ORDER BY b.start_time
         LIMIT 1
     ) bk ON TRUE
@@ -66,7 +74,7 @@ class Room
             UNION ALL
             SELECT b.end_time FROM bookings b
             WHERE b.room_id = r.id AND b.date = {$today}
-              AND b.status::text = 'approved' AND b.end_time <= {$time}
+              AND b.status::text = 'confirmed' AND b.end_time <= {$time}
         ) x
     ) prv ON TRUE
     LEFT JOIN LATERAL (
@@ -77,11 +85,11 @@ class Room
             UNION ALL
             SELECT b.start_time FROM bookings b
             WHERE b.room_id = r.id AND b.date = {$today}
-              AND b.status::text = 'approved' AND b.start_time > {$time}
+              AND b.status::text = 'confirmed' AND b.start_time > {$time}
         ) y
     ) nxt ON TRUE
 )";
-}
+    }
 
     public function getAll()
     {
@@ -184,7 +192,7 @@ class Room
             ':tables' => (int) $d['tables'],
             ':facilities' => $d['facilities'] !== '' ? $d['facilities'] : null,
             ':is_active' => $d['is_active'] ? 'true' : 'false',
-            ':image_path' => $d['image_path']?? null,
+            ':image_path' => $d['image_path'] ?? null,
         ];
     }
 
@@ -223,10 +231,10 @@ class Room
     }
 
 
-public function getWeeklySchedules()
-{
-    $stmt = $this->conn->prepare(
-        "SELECT s.room_id,
+    public function getWeeklySchedules()
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT s.room_id,
                 s.day_of_week,
                 to_char(s.start_time, 'HH24:MI') AS start_time,
                 to_char(s.end_time,   'HH24:MI') AS end_time,
@@ -244,21 +252,21 @@ public function getWeeklySchedules()
         WHEN EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'Asia/Jakarta')) BETWEEN 1 AND 6
         THEN 'Genap' ELSE 'Ganjil' END
          ORDER BY s.day_of_week ASC, s.start_time ASC"
-    );
-    $stmt->execute();
+        );
+        $stmt->execute();
 
-    $byRoom = [];
-    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        $byRoom[$row['room_id']][] = [
-            'day'       => (int) $row['day_of_week'],
-            'start'     => $row['start_time'],
-            'end'       => $row['end_time'],
-            'course'    => $row['course'],
-            'code'      => $row['code'],
-            'lecturer'  => $row['lecturer'],
-            'classroom' => $row['classroom'],
-        ];
+        $byRoom = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $byRoom[$row['room_id']][] = [
+                'day' => (int) $row['day_of_week'],
+                'start' => $row['start_time'],
+                'end' => $row['end_time'],
+                'course' => $row['course'],
+                'code' => $row['code'],
+                'lecturer' => $row['lecturer'],
+                'classroom' => $row['classroom'],
+            ];
+        }
+        return $byRoom;
     }
-    return $byRoom;
-}
 }

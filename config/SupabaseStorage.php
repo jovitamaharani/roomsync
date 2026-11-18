@@ -5,12 +5,16 @@ class SupabaseStorage
     private $key;
     private $bucket;
 
-    public function __construct()
+    public function __construct($bucketKey = 'bucket')
     {
-        $c = require __DIR__ . '/supabase.php';
-        $this->url    = rtrim($c['url'], '/');
-        $this->key    = $c['key'];
-        $this->bucket = $c['bucket'];
+        $file = __DIR__ . '/supabase.php';
+        if (!is_file($file)) {
+            throw new RuntimeException('config/supabase.php belum ada.');
+        }
+        $c = require $file;
+        $this->url = rtrim($c['url'], '/');
+        $this->key = $c['key'];
+        $this->bucket = $c[$bucketKey] ?? $c['bucket'];
     }
 
     private function headers(array $extra = [])
@@ -28,15 +32,15 @@ class SupabaseStorage
     {
         $ch = curl_init($this->url . '/storage/v1/object/' . $this->bucket . '/' . rawurlencode($objectName));
         curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => file_get_contents($tmpPath),
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => file_get_contents($tmpPath),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 20,
-            CURLOPT_HTTPHEADER     => $this->headers(['Content-Type: ' . $mime, 'x-upsert: false']),
+            CURLOPT_TIMEOUT => 20,
+            CURLOPT_HTTPHEADER => $this->headers(['Content-Type: ' . $mime, 'x-upsert: false']),
         ]);
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $err  = curl_error($ch);
+        $err = curl_error($ch);
         curl_close($ch);
 
         if ($body === false || $code < 200 || $code >= 300) {
@@ -62,10 +66,10 @@ class SupabaseStorage
 
         $ch = curl_init($this->url . '/storage/v1/object/' . $this->bucket . '/' . rawurlencode($objectName));
         curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST  => 'DELETE',
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 15,
-            CURLOPT_HTTPHEADER     => $this->headers(),
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_HTTPHEADER => $this->headers(),
         ]);
         curl_exec($ch);
         curl_close($ch);

@@ -48,6 +48,7 @@ class UsersController
     private function collect()
     {
         $classId = trim($_POST['student_class_id'] ?? '');
+        $nim = preg_replace('/\s+/', '', $_POST['nim'] ?? '');
         return [
             'name' => trim($_POST['name'] ?? ''),
             'email' => strtolower(trim($_POST['email'] ?? '')),
@@ -55,6 +56,7 @@ class UsersController
             'student_class_id' => $classId === '' ? null : $classId,
             'password' => $_POST['password'] ?? '',          // jangan di-trim
             'password_confirm' => $_POST['password_confirm'] ?? '',
+            'nim' => $nim === '' ? null : $nim,
         ];
     }
 
@@ -68,6 +70,9 @@ class UsersController
             || !filter_var($d['email'], FILTER_VALIDATE_EMAIL)
         ) {
             return "Format email tidak valid.";
+        }
+        if ($d['nim'] !== null && !preg_match('/^\d{5,15}$/', $d['nim'])) {
+            return "NIM harus berupa angka (5-15 digit).";
         }
         if (!$this->isUuid($d['role_id'])) {
             return "Role wajib dipilih.";
@@ -96,7 +101,7 @@ class UsersController
     private function dbErrorMessage(PDOException $e)
     {
         $messages = [
-            '23505' => 'Email sudah terdaftar.',
+            '23505' => 'Email/NIM sudah terdaftar.',
             '23503' => 'Role atau kelas yang dipilih tidak ditemukan.',
             '23502' => 'Ada kolom wajib yang belum diisi.',
             '22P02' => 'Format data tidak valid.',
