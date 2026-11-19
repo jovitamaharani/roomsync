@@ -37,7 +37,7 @@ $userHomeUrl = 'index.php?controller=user&view=landing';
             <i class="bi bi-buildings-fill"></i>
         </span>
         <span>
-            <b>SIKARA</b>
+            <b>RIMORA</b>
             <small>Admin JTI</small>
         </span>
     </a>
