@@ -8,12 +8,12 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user'])) {
     $_SESSION['user'] = [
         'name' => 'Administrator JTI',
-        'email' => 'admin@sikara.test',
+        'email' => 'admin@rimora.test',
         'role' => 'admin'
     ];
 }
 
-$pageTitle = $pageTitle ?? 'Admin JTI - SIKARA';
+$pageTitle = $pageTitle ?? 'Admin JTI - RIMORA';
 ?>
 <!DOCTYPE html>
 <html lang="id">

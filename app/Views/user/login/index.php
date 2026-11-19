@@ -1,5 +1,5 @@
 ﻿<?php
-$pageTitle = 'Login - SIKARA';
+$pageTitle = 'Login - RIMORA';
 $activePage = 'login';
 $basePath = $basePath ?? '../';
 
@@ -20,7 +20,7 @@ require_once __DIR__ . '/../components/navbar.php';
                   <path d="M8.5 14.5C8.5 13 10.067 11.8 12 11.8C13.933 11.8 15.5 13 15.5 14.5" stroke="#0E2C6A" stroke-width="2.3" stroke-linecap="round"/>
                 </svg>
               </div>
-              <h1 class="login-brand-title">SIKARA</h1>
+              <h1 class="login-brand-title">RIMORA</h1>
               <p class="login-brand-desc">
                 Pantau ketersediaan ruangan, cek jadwal, dan kelola penggunaan kelas dengan mudah dan cepat.
               </p>

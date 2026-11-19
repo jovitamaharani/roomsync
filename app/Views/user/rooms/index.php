@@ -1,5 +1,5 @@
 ﻿<?php
-$pageTitle = 'Ruang Kelas - SIKARA';
+$pageTitle = 'Ruang Kelas - RIMORA';
 $activePage = 'rooms';
 $basePath = $basePath ?? '../';
 

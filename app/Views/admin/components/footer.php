@@ -18,7 +18,7 @@ foreach ($possibleJsPaths as $p) {
 ?>
             <footer class="admin-footer">
                 <p class="mb-0">
-                    &copy; <?= date('Y') ?> <b>SIKARA</b> &middot; Jurusan Teknologi Informasi Politeknik Negeri Malang.
+                    &copy; <?= date('Y') ?> <b>RIMORA</b> &middot; Jurusan Teknologi Informasi Politeknik Negeri Malang.
                     <span class="d-none d-md-inline">Sistem Informasi Ketersediaan dan Alokasi Ruang.</span>
                 </p>
             </footer>

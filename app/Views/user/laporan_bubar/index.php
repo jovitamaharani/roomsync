@@ -1,5 +1,5 @@
 ﻿<?php
-$pageTitle = 'Laporan Aktivitas & Bubar Kelas - SIKARA';
+$pageTitle = 'Laporan Aktivitas & Bubar Kelas - RIMORA';
 $activePage = 'activity';
 $basePath = $basePath ?? '../';
 
@@ -39,7 +39,7 @@ require_once __DIR__ . '/../components/navbar.php';
               </svg>
             </div>
             <div class="notice-text">
-              <strong>Mekanisme Override Real-time SIKARA</strong>
+              <strong>Mekanisme Override Real-time RIMORA</strong>
               <p>Menekan tombol konfirmasi <strong>"Mahasiswa Bubar"</strong> akan segera mengubah status ruangan dari <span class="badge-tag red">Terpakai</span> menjadi <span class="badge-tag green">Kosong (Hijau)</span> secara instan dan memperbarui log okupansi permanen.</p>
             </div>
           </div>
@@ -113,7 +113,7 @@ require_once __DIR__ . '/../components/navbar.php';
 
           <div class="form-group">
             <label class="form-label" for="materi">Catatan Jurnal / Topik Materi Perkuliahan</label>
-            <textarea id="materi" class="form-control text-area" rows="3" placeholder="Deskripsi ringkas materi yang disampaikan hari ini...">Pembahasan implementasi HTML5, CSS3 Grid/Flexbox, dan JavaScript SPA untuk antarmuka sistem SIKARA.</textarea>
+            <textarea id="materi" class="form-control text-area" rows="3" placeholder="Deskripsi ringkas materi yang disampaikan hari ini...">Pembahasan implementasi HTML5, CSS3 Grid/Flexbox, dan JavaScript SPA untuk antarmuka sistem RIMORA.</textarea>
           </div>
 
           <!-- PROMINENT MAHASISWA BUBAR TRIGGER SECTION -->

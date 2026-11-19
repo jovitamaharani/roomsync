@@ -1,5 +1,5 @@
 ﻿<?php
-$pageTitle = 'Profil Pengguna - SIKARA';
+$pageTitle = 'Profil Pengguna - RIMORA';
 $activePage = 'profile';
 $basePath = $basePath ?? '../';
 
@@ -63,7 +63,7 @@ require_once __DIR__ . '/../components/navbar.php';
               <h4 id="profileName" class="fw-bold mb-0" style="color: #0A255C; font-size: 20px;"><?= $h($profile['name'] ?? '') ?></h4>
               <span id="profileRole" class="badge rounded-pill px-3 py-1 fw-semibold" style="background: #EEF4FF; color: #2563EB; font-size: 11px;"><?= $h($roleBadge) ?></span>
             </div>
-            <p id="profileRoleDescription" class="text-muted small mb-3">Akun aktif Sistem Informasi Kelas & Ruangan Kampus (SIKARA)</p>
+            <p id="profileRoleDescription" class="text-muted small mb-3">Akun aktif Sistem Informasi Kelas & Ruangan Kampus (RIMORA)</p>
 
             <!-- Form unggah foto (tersembunyi). Dikirim otomatis oleh profile.js setelah foto dipilih -->
             <form id="profilePhotoForm" method="POST" action="index.php?controller=profile&action=uploadPhoto" enctype="multipart/form-data" class="d-none">

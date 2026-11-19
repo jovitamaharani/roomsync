@@ -1,5 +1,5 @@
 ﻿<?php
-$pageTitle = 'Activity Control - SIKARA';
+$pageTitle = 'Activity Control - RIMORA';
 $activePage = 'activity';
 $basePath = $basePath ?? '../';
 
