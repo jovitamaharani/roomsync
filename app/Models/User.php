@@ -175,4 +175,18 @@ class User
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+    public function findForReset(string $id)
+    {
+        $stmt = $this->conn->prepare("SELECT id, name, email, password FROM users WHERE id = :id::uuid LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function updatePasswordById(string $id, string $passwordHash)
+    {
+        $stmt = $this->conn->prepare("UPDATE users SET password = :password WHERE id = :id::uuid");
+        $stmt->execute(['password' => $passwordHash, 'id' => $id]);
+        return $stmt->rowCount() > 0;
+    }
 }

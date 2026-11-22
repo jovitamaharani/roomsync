@@ -1,6 +1,8 @@
 <?php
 $pageTitle = 'Konfirmasi Reset Password - RIMORA';
 $email = $email ?? 'email-akun-anda';
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
 ?>
 
 <!DOCTYPE html>
@@ -26,10 +28,17 @@ $email = $email ?? 'email-akun-anda';
         <h1>Lupa Kata Sandi?</h1>
         <p class="password-description">
             Masukkan email akun RIMORA. Kami akan
-            menampilkan petunjuk pemulihan yang sesuai.
+            mengirim tautan untuk membuat kata sandi baru.
         </p>
 
-        <form action="#" method="POST">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success'; ?> small py-2 px-3">
+                <?= htmlspecialchars($flash['message']); ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="index.php?controller=auth&action=sendResetLink" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
 
@@ -58,14 +67,15 @@ $email = $email ?? 'email-akun-anda';
                 <h2>Tautan Reset Kata Sandi Terkirim!</h2>
 
                 <p>
-                    Kami telah mengirimkan tautan untuk mengatur ulang
-                    kata sandi ke:
+                    Jika email tersebut terdaftar, kami telah mengirimkan tautan untuk
+                    mengatur ulang kata sandi ke:
                     <strong><?= htmlspecialchars($email); ?></strong>.
                     Silakan periksa kotak masuk (inbox) atau folder spam Anda.
                 </p>
 
                 <div class="success-actions">
-                    <form action="#" method="POST">
+                    <form action="index.php?controller=auth&action=sendResetLink" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
                         <input type="hidden" name="email" value="<?= htmlspecialchars($email); ?>">
 
                         <button type="submit" class="btn-password-secondary">
@@ -73,7 +83,7 @@ $email = $email ?? 'email-akun-anda';
                         </button>
                     </form>
 
-                    <a href="#" class="btn-password-secondary">
+                    <a href="index.php?controller=auth&action=login" class="btn-password-secondary">
                         Kembali Ke Login
                     </a>
                 </div>

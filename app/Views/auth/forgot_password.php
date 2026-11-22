@@ -1,5 +1,7 @@
 <?php
 $pageTitle = 'Lupa Password - RIMORA';
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
 ?>
 
 <!DOCTYPE html>
@@ -25,10 +27,17 @@ $pageTitle = 'Lupa Password - RIMORA';
         <h1>Lupa Kata Sandi?</h1>
         <p class="password-description">
             Masukkan email akun RIMORA. Kami akan
-            menampilkan petunjuk pemulihan yang sesuai.
+            mengirim tautan untuk membuat kata sandi baru.
         </p>
 
-        <form action="#" method="POST">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success'; ?> small py-2 px-3">
+                <?= htmlspecialchars($flash['message']); ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="index.php?controller=auth&action=sendResetLink" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
 
@@ -47,6 +56,10 @@ $pageTitle = 'Lupa Password - RIMORA';
                 <i class="bi bi-box-arrow-in-right ms-1"></i>
             </button>
         </form>
+
+        <p class="text-center mt-3 mb-0">
+            <a href="index.php?controller=auth&action=login">Kembali ke login</a>
+        </p>
     </main>
 
 </body>

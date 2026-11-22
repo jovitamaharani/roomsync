@@ -35,79 +35,110 @@ unset($_SESSION['flash'], $_SESSION['old_email']);
                     Sistem Monitoring Ruang · PBL 2026
                 </small>
             </section>
-            <!-- FORM LOGIN -->
+            <!-- FORM PANEL -->
             <section class="form-panel d-flex align-items-center p-4">
-                <form class="w-100" action="index.php?controller=auth&action=authenticate" method="POST" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
+                <div class="w-100">
                     <h2 class="mb-1">Masuk ke Akun</h2>
                     <p class="form-description mb-4">
                         Silakan masukkan kredensial Anda untuk melanjutkan.
                     </p>
+
                     <!-- FLASH MESSAGE -->
                     <?php if ($flash): ?>
                         <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success'; ?> small py-2 px-3">
                             <?= htmlspecialchars($flash['message']); ?>
                         </div>
                     <?php endif; ?>
-                    <!-- EMAIL -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            Email Pengguna
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-envelope" aria-hidden="true"></i>
-                            </span>
 
-                            <input type="email" class="form-control" id="email" name="email"
-                                placeholder="Masukkan Email" value="<?= htmlspecialchars($oldEmail); ?>"
-                                autocomplete="username" required>
-                        </div>
-                    </div>
-                    <!-- PASSWORD -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            Kata Sandi
-                        </label>
-                        <div class="input-group password-login-field">
-                            <span class="input-group-text">
-                                <i class="bi bi-lock" aria-hidden="true"></i>
-                            </span>
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Masukkan Kata Sandi" autocomplete="current-password" required>
-                            <!-- TOMBOL TOGGLE PASSWORD -->
-                            <button type="button" class="toggle-login-password" aria-label="Tampilkan password"
-                                aria-pressed="false">
-                                <span class="password-eye-icon">
-                                    <!-- SVG MATA TERTUTUP -->
-                                    <svg viewBox="0 0 32 32" aria-hidden="true">
-                                        <path d="M3 17 Q8 26 16 26 Q24 26 29 17" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" />
-                                        <path d="M7 22 L5 25 M12 25 L11 29 M20 25 L21 29 M25 22 L27 25" fill="none"
-                                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                                    </svg>
+                    <!-- TOMBOL MASUK CEPAT (MUNCUL JIKA COOKIE REMEMBER VALID) -->
+                    <?php if (!empty($quickAccount)): ?>
+                        <form class="mb-3" action="index.php?controller=auth&action=quickLogin" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
+                            <button type="submit"
+                                class="btn btn-light border w-100 rounded-3 d-flex align-items-center justify-content-between text-start py-2 px-3">
+                                <span class="d-flex align-items-center gap-2 overflow-hidden">
+                                    <i class="bi bi-person-check-fill fs-5 text-primary flex-shrink-0"
+                                        aria-hidden="true"></i>
+                                    <span class="text-truncate">
+                                        <strong class="d-block small text-dark">Lanjutkan sebagai
+                                            <?= htmlspecialchars($quickAccount['name']); ?></strong>
+                                        <small
+                                            class="text-secondary"><?= htmlspecialchars($quickAccount['email']); ?></small>
+                                    </span>
                                 </span>
+                                <i class="bi bi-arrow-right-short fs-4 text-secondary flex-shrink-0" aria-hidden="true"></i>
                             </button>
-                        </div>
-                    </div>
-                    <!-- FORM OPTIONS -->
-                    <div class="form-options d-flex justify-content-between align-items-center gap-2 mt-4 mb-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="ingatSaya">
-                            <label class="form-check-label" for="ingatSaya">
-                                Ingat saya
+                        </form>
+                        <div class="text-center text-muted small mb-3">atau masuk dengan akun lain</div>
+                    <?php endif; ?>
+
+                    <!-- FORM LOGIN UTAMA -->
+                    <form class="w-100" action="index.php?controller=auth&action=authenticate" method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
+
+                        <!-- EMAIL -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                Email Pengguna
                             </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope" aria-hidden="true"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="Masukkan Email" value="<?= htmlspecialchars($oldEmail); ?>"
+                                    autocomplete="username" required>
+                            </div>
                         </div>
-                        <a href="forgot_password.php" class="forgot-link">
-                            Lupa Kata Sandi?
-                        </a>
-                    </div>
-                    <!-- BUTTON LOGIN -->
-                    <button type="submit" class="btn btn-login w-100 rounded-3">
-                        Masuk
-                        <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
-                    </button>
-                </form>
+
+                        <!-- PASSWORD -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                Kata Sandi
+                            </label>
+                            <div class="input-group password-login-field">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock" aria-hidden="true"></i>
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Masukkan Kata Sandi" autocomplete="current-password" required>
+                                <!-- TOMBOL TOGGLE PASSWORD -->
+                                <button type="button" class="toggle-login-password" aria-label="Tampilkan password"
+                                    aria-pressed="false">
+                                    <span class="password-eye-icon">
+                                        <!-- SVG MATA TERTUTUP -->
+                                        <svg viewBox="0 0 32 32" aria-hidden="true">
+                                            <path d="M3 17 Q8 26 16 26 Q24 26 29 17" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" />
+                                            <path d="M7 22 L5 25 M12 25 L11 29 M20 25 L21 29 M25 22 L27 25" fill="none"
+                                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- FORM OPTIONS -->
+                        <div class="form-options d-flex justify-content-between align-items-center gap-2 mt-4 mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ingatSaya" name="remember"
+                                    value="1">
+                                <label class="form-check-label" for="ingatSaya">
+                                    Ingat saya
+                                </label>
+                            </div>
+                            <a href="index.php?controller=auth&action=forgotPassword" class="forgot-link">
+                                Lupa Kata Sandi?
+                            </a>
+                        </div>
+
+                        <!-- BUTTON LOGIN -->
+                        <button type="submit" class="btn btn-login w-100 rounded-3">
+                            Masuk
+                            <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </div>
             </section>
         </div>
     </main>

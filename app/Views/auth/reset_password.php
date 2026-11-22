@@ -1,6 +1,9 @@
 <?php
 $pageTitle = 'Ubah Password - RIMORA';
 $email = $email ?? 'email-akun-anda';
+$token = $token ?? '';
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +35,15 @@ $email = $email ?? 'email-akun-anda';
             Pastikan kata sandi baru Anda aman dan mudah diingat.
         </p>
 
-        <form action="#" method="POST">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success'; ?> small py-2 px-3">
+                <?= htmlspecialchars($flash['message']); ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="index.php?controller=auth&action=updatePassword" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Auth::csrfToken()); ?>">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($token); ?>">
 
             <!-- KATA SANDI BARU -->
             <div class="mb-3">
