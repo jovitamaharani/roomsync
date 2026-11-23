@@ -39,16 +39,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ---------- Kata sandi: baru dan konfirmasi harus sama ----------
+  // ---------- Kata sandi: baru dan konfirmasi harus sama, validasi dua kali di server dan client ----------
   const pwForm = document.getElementById('profilePasswordForm');
   if (pwForm) {
+    const current = document.getElementById('currentPassword');
+    const next = document.getElementById('newPassword');
+    const confirmInput = document.getElementById('confirmPassword');
+
+    const validate = function () {
+      if (next.value.length < 8) return 'Kata sandi baru minimal 8 karakter.';
+      if (next.value.length > 72) return 'Kata sandi baru maksimal 72 karakter.';
+      if (!/[A-Za-z]/.test(next.value) || !/\d/.test(next.value)) return 'Kata sandi baru harus berisi huruf dan angka.';
+      if (next.value === current.value) return 'Kata sandi baru tidak boleh sama dengan yang lama.';
+      if (next.value !== confirmInput.value) return 'Konfirmasi kata sandi baru tidak cocok.';
+      return '';
+    };
+
     pwForm.addEventListener('submit', function (e) {
-      const next = document.getElementById('newPassword').value;
-      const confirm = document.getElementById('confirmPassword').value;
-      if (next !== confirm) {
+      const message = validate();
+      if (message) {
         e.preventDefault();
-        notify('Konfirmasi kata sandi baru tidak cocok.');
+        notify(message);
+        return;
       }
+      const btn = pwForm.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;   // cegah kirim dua kali
     });
   }
 });

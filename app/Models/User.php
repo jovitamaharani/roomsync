@@ -120,7 +120,7 @@ class User
     public function getProfile($id)
     {
         $stmt = $this->conn->prepare(
-            "SELECT u.id, u.name, u.email, u.no_hp, u.photo_path, u.created_at,
+            "SELECT u.id, u.name, u.email, u.nim, u.telepon, u.photo_path, u.created_at,
                     r.name  AS role_name,
                     sc.name AS class_name,
                     ay.name AS academic_year
@@ -140,11 +140,11 @@ class User
     public function updateProfile($id, array $d)
     {
         $stmt = $this->conn->prepare(
-            "UPDATE users SET name = :name, email = :email, no_hp = :no_hp WHERE id = :id"
+            "UPDATE users SET name = :name, email = :email, telepon = :telepon WHERE id = :id"
         );
         $stmt->bindValue(':name', $d['name']);
         $stmt->bindValue(':email', $d['email']);
-        $stmt->bindValue(':no_hp', $d['no_hp'], $d['no_hp'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue(':telepon', $d['telepon'], $d['telepon'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue(':id', $id);
         $stmt->execute();
         return $stmt->rowCount() > 0;

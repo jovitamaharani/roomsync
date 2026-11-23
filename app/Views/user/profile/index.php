@@ -11,8 +11,8 @@ $csrf = Auth::csrfToken();
 $photo = $profile['photo_path'] ?? null;
 $initial = strtoupper(mb_substr((string) ($profile['name'] ?? '?'), 0, 1)) ?: '?';
 
-// no_hp disimpan sebagai angka 62xxxxxxxxxx (bigint); tampilkan kembali sebagai 08xxxxxxxxxx
-$phoneRaw = (string) ($profile['no_hp'] ?? '');
+// telepon disimpan sebagai angka 62xxxxxxxxxx (bigint); tampilkan kembali sebagai 08xxxxxxxxxx
+$phoneRaw = (string) ($profile['telepon'] ?? '');
 $phoneDisplay = strpos($phoneRaw, '62') === 0 ? '0' . substr($phoneRaw, 2) : $phoneRaw;
 
 $nim = $profile['nim'] ?? null;
@@ -140,7 +140,7 @@ require_once __DIR__ . '/../components/navbar.php';
               </div>
               <div class="mb-4">
                 <label for="profileInputPhone" class="form-label text-secondary small fw-semibold mb-1">Nomor WhatsApp / HP</label>
-                <input type="tel" id="profileInputPhone" name="no_hp" class="form-control" style="font-size: 13px;" inputmode="numeric" maxlength="20" placeholder="Contoh: 081234567890" value="<?= $h($phoneDisplay) ?>">
+                <input type="tel" id="profileInputPhone" name="telepon" class="form-control" style="font-size: 13px;" inputmode="numeric" maxlength="20" placeholder="Contoh: 081234567890" value="<?= $h($phoneDisplay) ?>">
               </div>
               <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 w-100 fw-semibold" style="font-size: 13px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
