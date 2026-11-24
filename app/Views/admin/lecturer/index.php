@@ -64,17 +64,25 @@ include __DIR__ . '/../components/sidebar.php';
                                         <?php endif; ?>
 
                                         <div class="mb-3">
-                                            <label class="col-form-label" for="kode">Kode Dosen:</label>
+                                            <label class="form-label" for="kode">Kode Dosen:</label>
                                             <input type="text" class="form-control" id="kode" name="kode"
                                                 placeholder="Contoh: BS" maxlength="9"
                                                 value="<?= htmlspecialchars($flash['old']['kode'] ?? ''); ?>" required>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label class="col-form-label" for="name">Nama Dosen:</label>
+                                            <label class="form-label" for="name">Nama Dosen:</label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                 placeholder="Contoh: Budi Santoso, S.Kom., M.Kom." maxlength="100"
                                                 value="<?= htmlspecialchars($flash['old']['name'] ?? ''); ?>" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="telepon">Nomor Telepon:</label>
+                                            <input type="text" class="form-control" id="telepon" name="telepon"
+                                                placeholder="Contoh: 081234567890" maxlength="20"
+                                                value="<?= htmlspecialchars($flash['old']['telepon'] ?? ''); ?>"
+                                                required>
                                         </div>
                                     </div>
 
@@ -120,9 +128,15 @@ include __DIR__ . '/../components/sidebar.php';
                                             <input type="text" class="form-control" id="edit_name" maxlength="100"
                                                 name="name" required>
                                         </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="edit_telepon">Nomor Telepon:</label>
+                                            <input type="text" class="form-control" id="edit_telepon" maxlength="20"
+                                                name="telepon" required>
+                                        </div>
                                     </div>
 
-                                    <div class="modal-footer">
+                                    <div class=" modal-footer">
                                         <button type="button" class="btn btn-light"
                                             data-bs-dismiss="modal">Batal</button>
                                         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
@@ -130,36 +144,83 @@ include __DIR__ . '/../components/sidebar.php';
                                 </form>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Modal Import -->
-                <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <form action="index.php?controller=lecturer&action=import" method="POST"
-                            enctype="multipart/form-data" class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="importModalLabel">Impor Data Dosen</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="alert alert-info py-2">
-                                    Gunakan template resmi agar format kolom sesuai.
-                                    <a href="assets/templates/template_dosen.xlsx" class="fw-bold alert-link"
-                                        download>Unduh Template</a>
+                        <!-- Modal Delete -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus Data</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Tutup"></button>
+                                    </div>
+                                    <form id="deleteForm" action="index.php?controller=lecturer&action=delete"
+                                        method="POST">
+                                        <input type="hidden" id="deleteIdLecturer" name="id">
+                                        <div class="modal-body">
+                                            <p class="mb-2">Apakah Anda yakin ingin menghapus data dosen <strong
+                                                    id="deleteItemLabel">ini</strong>?
+                                            </p>
+                                            <p class="text-danger small mb-0"><i
+                                                    class="bi bi-exclamation-triangle me-1"></i>Tindakan ini
+                                                tidak dapat dibatalkan.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-danger">Hapus</button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="excel_file">Pilih Berkas (.xlsx / .csv):</label>
-                                    <input type="file" class="form-control" id="excel_file" name="file"
-                                        accept=".xlsx, .xls, .csv" required>
-                                </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-primary">Unggah & Impor</button>
+                        </div>
+
+                        <!-- Modal Import -->
+                        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form action="index.php?controller=lecturer&action=import" method="POST"
+                                    enctype="multipart/form-data" class="modal-content">
+                                    <div class="modal-header">
+                                        <h2 class="modal-title fs-5" id="importModalLabel">Impor Data Dosen</h2>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <?php if (!empty($flash) && ($flash['target'] ?? '') === 'import'): ?>
+                                            <div class="alert <?= ($flash['type'] ?? '') === 'error' ? 'alert-danger' : 'alert-success' ?> alert-dismissible fade show py-2 px-3 small d-flex align-items-center justify-content-between"
+                                                role="alert">
+                                                <span><?= htmlspecialchars($flash['message']); ?></span>
+                                                <button type="button" class="btn-close position-static ms-2 p-1"
+                                                    data-bs-dismiss="alert" aria-label="Close"
+                                                    style="font-size: 0.75rem;"></button>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <div class="alert alert-info py-2 px-3 small">
+                                            Gunakan template resmi (<code>.xlsx</code>) agar format kolom sesuai.<br>
+                                            <a href="assets/templates/Lecturer_Template.xlsx"
+                                                class="fw-bold alert-link text-nowrap" download>
+                                                Unduh Template
+                                            </a>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label" for="excel_file">Pilih Berkas (.xlsx /
+                                                .csv):</label>
+                                            <input type="file" class="form-control" id="excel_file" name="file"
+                                                accept=".xlsx,.csv" style="height: auto;" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-primary">Unggah & Impor</button>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -169,6 +230,7 @@ include __DIR__ . '/../components/sidebar.php';
                             <tr>
                                 <th>Kode Dosen</th>
                                 <th>Nama Dosen</th>
+                                <th class="text-start">Nomor Telepon</th>
                                 <th class="text-center" style="width: 170px;">Aksi</th>
                             </tr>
                         </thead>
@@ -182,23 +244,25 @@ include __DIR__ . '/../components/sidebar.php';
                                         <td>
                                             <?= htmlspecialchars($item['name']); ?>
                                         </td>
+                                        <td class="text-start">
+                                            <?= htmlspecialchars($item['telepon']); ?>
+                                        </td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-outline-warning text-dark me-1"
                                                 data-bs-toggle="modal" data-bs-target="#editModal"
                                                 data-id="<?= htmlspecialchars($item['id']); ?>"
                                                 data-kode="<?= htmlspecialchars($item['kode']); ?>"
-                                                data-name="<?= htmlspecialchars($item['name']); ?>">
+                                                data-name="<?= htmlspecialchars($item['name']); ?>"
+                                                data-telepon="<?= htmlspecialchars($item['telepon']); ?>">
                                                 <i class="bi bi-pencil-square me-1"></i>Edit
                                             </button>
 
-                                            <form action="index.php?controller=lecturer&action=delete" method="POST"
-                                                class="d-inline"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus data dosen ini?')">
-                                                <input type="hidden" name="id" value="<?= htmlspecialchars($item['id']); ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-trash3 me-1"></i>Hapus
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-lecturer"
+                                                ata-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="<?= htmlspecialchars($item['id']); ?>"
+                                                data-label="<?= htmlspecialchars($item['kode'] . ' - ' . $item['name']); ?>">
+                                                <i class="bi bi-trash3 me-1"></i>Hapus
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -235,23 +299,23 @@ include __DIR__ . '/../components/sidebar.php';
                         layout: {
                             topStart: {
                                 buttons: [
-                                    { 
-                                        extend: "copy", 
+                                    {
+                                        extend: "copy",
                                         text: '<i class="bi bi-clipboard me-1"></i>Copy',
                                         exportOptions: { columns: ':not(:last-child)' }
                                     },
-                                    { 
-                                        extend: "excel", 
+                                    {
+                                        extend: "excel",
                                         text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
                                         exportOptions: { columns: ':not(:last-child)' }
                                     },
-                                    { 
-                                        extend: "pdf", 
+                                    {
+                                        extend: "pdf",
                                         text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
                                         exportOptions: { columns: ':not(:last-child)' }
                                     },
-                                    { 
-                                        extend: "print", 
+                                    {
+                                        extend: "print",
                                         text: '<i class="bi bi-printer me-1"></i>Print',
                                         exportOptions: { columns: ':not(:last-child)' }
                                     }
@@ -283,6 +347,26 @@ include __DIR__ . '/../components/sidebar.php';
 
             const editModalEl = document.getElementById('editModal');
             const addModalEl = document.getElementById('addModal');
+            const deleteModalEl = document.getElementById('deleteModal');
+            const importModalEl = document.getElementById('importModal');
+
+            if (deleteModalEl) {
+                deleteModalEl.addEventListener('hide.bs.modal', function () {
+                    if (document.activeElement && deleteModalEl.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+                });
+            }
+
+            // modal delete
+            document.addEventListener('click', (ev) => {
+                const delBtn = ev.target.closest('.btn-delete-lecturer');
+                if (delBtn && deleteModalEl) {
+                    document.getElementById('deleteIdLecturer').value = delBtn.dataset.id || '';
+                    document.getElementById('deleteItemLabel').textContent = delBtn.dataset.label || 'ini';
+                    bootstrap.Modal.getOrCreateInstance(deleteModalEl).show();
+                }
+            });
 
             // 1. Event klik tombol Edit di tabel (buka manual oleh user)
             if (editModalEl) {
@@ -292,6 +376,7 @@ include __DIR__ . '/../components/sidebar.php';
                         document.getElementById('edit_id').value = button.getAttribute('data-id') || '';
                         document.getElementById('edit_kode').value = button.getAttribute('data-kode') || '';
                         document.getElementById('edit_name').value = button.getAttribute('data-name') || '';
+                        document.getElementById('edit_telepon').value = button.getAttribute('data-telepon') || '';
                     }
                 });
             }
@@ -311,10 +396,16 @@ include __DIR__ . '/../components/sidebar.php';
                         document.getElementById('edit_id').value = <?= json_encode($flash['old']['id'] ?? ''); ?>;
                         document.getElementById('edit_kode').value = <?= json_encode($flash['old']['kode'] ?? ''); ?>;
                         document.getElementById('edit_name').value = <?= json_encode($flash['old']['name'] ?? ''); ?>;
+                        document.getElementById('edit_telepon').value = <?= json_encode($flash['old']['telepon'] ?? ''); ?>;
                     <?php endif; ?>
 
                     if (editModalEl) {
                         new bootstrap.Modal(editModalEl).show();
+                    }
+
+                <?php elseif ($flash['target'] === 'import'): ?>
+                    if (importModalEl) {
+                        new bootstrap.Modal(importModalEl).show();
                     }
                 <?php endif; ?>
 

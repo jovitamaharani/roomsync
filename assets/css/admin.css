@@ -995,6 +995,20 @@ div.dt-container .dt-paging .dt-paging-button.current:focus,
     z-index: 1070;
 }
 
+#importModal input[type="file"].form-control {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0.4rem 0.65rem !important;
+    line-height: 1.4 !important;
+}
+
+#importModal input[type="file"].form-control::-webkit-file-upload-button,
+#importModal input[type="file"].form-control::file-selector-button {
+    padding: 0.4rem 0.85rem !important;
+    margin: -0.4rem 0.75rem -0.4rem -0.65rem !important;
+    line-height: 1.4 !important;
+}
+
 /* =========================================
    17. TOAST
 ========================================= */
