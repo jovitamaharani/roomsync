@@ -46,4 +46,49 @@ class Course
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+    public function beginTransaction()
+    {
+        return $this->conn->beginTransaction();
+    }
+
+    public function commit()
+    {
+        return $this->conn->commit();
+    }
+
+    public function rollBack()
+    {
+        if ($this->conn->inTransaction()) {
+            return $this->conn->rollBack();
+        }
+        return false;
+    }
+
+    public function findExistingKodes(array $kodes)
+    {
+        if (empty($kodes)) {
+            return [];
+        }
+
+        $normalized = array_values(array_unique(array_map(
+            fn($k) => strtoupper(trim((string) $k)),
+            $kodes
+        )));
+
+        $placeholders = [];
+        foreach ($normalized as $i => $kode) {
+            $placeholders[] = ":kode_{$i}";
+        }
+
+        $sql = "SELECT kode_mk FROM " . $this->table . " WHERE UPPER(kode_mk) IN (" . implode(', ', $placeholders) . ")";
+        $stmt = $this->conn->prepare($sql);
+
+        foreach ($normalized as $i => $kode) {
+            $stmt->bindValue(":kode_{$i}", $kode, PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    }
 }
