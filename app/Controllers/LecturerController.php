@@ -346,30 +346,88 @@ class LecturerController
                 $this->redirect('error', 'Format berkas harus .xlsx (atau .csv).', 'import');
             }
 
+            // Cari baris pertama yang tidak sepenuhnya kosong untuk dijadikan header
+            $headerRowIndex = null;
+            $headerCells = [];
+            foreach ($rawRows as $idx => $r) {
+                $nonEmpty = array_filter($r['cells'], fn($v) => trim((string) $v) !== '');
+                if (!empty($nonEmpty)) {
+                    $headerRowIndex = $idx;
+                    $headerCells = $r['cells'];
+                    break;
+                }
+            }
+
+            if ($headerRowIndex === null) {
+                $this->redirect('error', 'Berkas tidak berisi data maupun header kolom.', 'import');
+            }
+
+            $normalizeHeader = static function (string $val): string {
+                $val = preg_replace('/^\xEF\xBB\xBF/', '', $val);
+                $val = strtolower(trim($val));
+                return preg_replace('/[\s\-]+/', '_', $val);
+            };
+
+            $kodeAliases = ['kode', 'kode_dosen', 'nidn', 'nip'];
+            $nameAliases = ['name', 'nama', 'nama_dosen'];
+            $teleponAliases = ['telepon', 'no_telepon', 'no_hp', 'hp', 'phone', 'nomor_telepon'];
+
+            $colMap = [
+                'kode' => null,
+                'name' => null,
+                'telepon' => null,
+            ];
+
+            foreach ($headerCells as $colIdx => $cellVal) {
+                $norm = $normalizeHeader((string) $cellVal);
+                if ($norm === '') {
+                    continue;
+                }
+                if ($colMap['kode'] === null && in_array($norm, $kodeAliases, true)) {
+                    $colMap['kode'] = $colIdx;
+                } elseif ($colMap['name'] === null && in_array($norm, $nameAliases, true)) {
+                    $colMap['name'] = $colIdx;
+                } elseif ($colMap['telepon'] === null && in_array($norm, $teleponAliases, true)) {
+                    $colMap['telepon'] = $colIdx;
+                }
+            }
+
+            $missingHeaders = [];
+            if ($colMap['kode'] === null) {
+                $missingHeaders[] = 'kode_dosen (atau kode)';
+            }
+            if ($colMap['name'] === null) {
+                $missingHeaders[] = 'name (atau nama_dosen)';
+            }
+            if ($colMap['telepon'] === null) {
+                $missingHeaders[] = 'telepon (atau no_hp)';
+            }
+
+            if (!empty($missingHeaders)) {
+                $headerRowNum = $rawRows[$headerRowIndex]['row'];
+                $this->redirect(
+                    'error',
+                    "Header kolom tidak sesuai pada baris {$headerRowNum}. Kolom wajib yang belum ditemukan: " . implode(', ', $missingHeaders) . '.',
+                    'import'
+                );
+            }
+
             $validRows = [];
             $seenInFile = []; // [kode => baris_pertama]
-            $isFirstRow = true;
 
-            // 1. Validasi format tiap kolom & duplikat di dalam file
-            foreach ($rawRows as $r) {
+            // 1. Validasi format tiap kolom & duplikat di dalam file (mulai setelah baris header)
+            for ($i = $headerRowIndex + 1; $i < count($rawRows); $i++) {
+                $r = $rawRows[$i];
                 $rowNum = $r['row'];
                 $cells = $r['cells'];
 
-                $kode = trim((string) ($cells[0] ?? ''));
-                $name = trim((string) ($cells[1] ?? ''));
-                $telepon = trim((string) ($cells[2] ?? ''));
+                $kode = trim((string) ($cells[$colMap['kode']] ?? ''));
+                $name = trim((string) ($cells[$colMap['name']] ?? ''));
+                $telepon = trim((string) ($cells[$colMap['telepon']] ?? ''));
 
                 // Lewati baris kosong
                 if ($kode === '' && $name === '' && $telepon === '') {
                     continue;
-                }
-
-                // Lewati baris header jika baris pertama berisi header
-                if ($isFirstRow) {
-                    $isFirstRow = false;
-                    if (in_array(strtolower($kode), ['kode', 'kode dosen', 'kode_dosen'], true)) {
-                        continue;
-                    }
                 }
 
                 if ($errKode = $this->validateField('kode', $kode)) {
